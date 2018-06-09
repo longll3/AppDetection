@@ -2,5 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/Users/longlong/tungee/FrameStatistics/gnujaxp-1.0.0.jar"/>
+	<classpathentry kind="lib" path="/Users/longlong/tungee/FrameStatistics/jcommon-1.0.16.jar"/>
+	<classpathentry kind="lib" path="/Users/longlong/tungee/FrameStatistics/jfreechart-1.0.19.jar" sourcepath="/Users/longlong/tungee/FrameStatistics/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
