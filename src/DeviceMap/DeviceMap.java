@@ -10,6 +10,11 @@ import java.util.Set;
 
 import parser.IEEE80211Parser;
 
+/**
+ * 统计各个设备的信息元素的种类以及个数
+ * @author longlong
+ *
+ */
 public enum DeviceMap {
 	IPHONE7("iPhone7 Plus"), IPHONE6S("iPhone6s"), MATE7_1("1号华为 Mate 7"), MATE7_2("2号华为 Mate 7"), HONOR10("华为荣耀10"), MI4("小米4"), MI6("小米6");
 	

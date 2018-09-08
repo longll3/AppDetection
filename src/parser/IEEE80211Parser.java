@@ -3,8 +3,11 @@ package parser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +29,9 @@ public class IEEE80211Parser {
 	
 	private File pcapFile;
 	private PcapStruct pcapStruct;
-	private Map<ArrayList<Integer>, Integer> IE;
+	private Map<ArrayList<Integer>, Integer> IE; //key：信息元素合集
+	
+	private Map<ArrayList<Integer>, String> HTSet;
 	
 	private ArrayList<IEEE80211ManagementFrame> timeArray;
 	
@@ -53,10 +58,15 @@ public class IEEE80211Parser {
 		return timeArray;
 	}
 	
+	/**
+	 * 
+	 * @throws IOException
+	 */
 	public void parse() throws IOException {
 		this.timeArray = new ArrayList<>();
 		this.pcapStruct = new PcapStruct();
-//		this.IE = new HashMap();
+		this.IE = new HashMap();
+		this.HTSet = new HashMap();
 		
 		FileInputStream fis = null;
 		try {
@@ -261,16 +271,23 @@ public class IEEE80211Parser {
 		
 		//the length of probe request part is 24 bytes 
 		int probeRequestLength = 24;
-		ArrayList<Integer> IE = parseInformationElements(content, probeRequestLength+radioTapHeader.getHeader_length());
 		
-		timeArray.add(new IEEE80211ManagementFrame(timestamp, sr_mac, dst_mac, seq_num, IE));
+		ArrayList<Integer> IEArray = new ArrayList<>(); //probe request帧的信息元素种类的编码
+		Map<Integer, byte[]> IEs = new HashMap<>();
+		
+		parseInformationElements(content, probeRequestLength+radioTapHeader.getHeader_length(), IEArray, IEs);
+		
+		if (IEs.containsKey(45)) {
+			this.HTSet.put(IEArray, DataUtils.byte2HexStr(IEs.get(45), 0, 2));
+		}
+		
+		timeArray.add(new IEEE80211ManagementFrame(timestamp, sr_mac, dst_mac, seq_num, IEs, IEArray));
 //		System.out.println(timestamp);
 		
 		if (this.flag) {
-			ArrayList<Integer> IEs = parseInformationElements(content, probeRequestLength+radioTapHeader.getHeader_length());
 		
-			if (this.IE.containsKey(IEs)) this.IE.put(IEs, this.IE.get(IEs)+1);
-			else this.IE.put(IEs, 1);
+			if (this.IE.containsKey(IEArray)) this.IE.put(IEArray, this.IE.get(IEArray)+1);
+			else this.IE.put(IEArray, 1);
 		}
 		
 		return false;
@@ -297,16 +314,21 @@ public class IEEE80211Parser {
 		return seq_num;
 	}
 
-	public static ArrayList<Integer> parseInformationElements(byte content[], int start) {
-		ArrayList<Integer> IEArray = new ArrayList<>();
+	public static void parseInformationElements(byte content[], int start, ArrayList<Integer> IEArray, Map<Integer, byte[]> IEs) {
+		
 		int length;
 		while (start < content.length-4) {
-			IEArray.add(DataUtils.byteToInt(content[start++]));
-			length = DataUtils.byteToInt(content[start]);
-			start += length+1;
+			int IE = DataUtils.byteToInt(content[start++]);
+			IEArray.add(IE);
+			length = DataUtils.byteToInt(content[start++]);
+			byte[] values = (Arrays.copyOfRange(content, start, start+length));
+			
+			IEs.put(IE, values);
+			
+			start += length;
 		}
 		
-		return IEArray;
+		return;
 		
 	}
 	
@@ -319,16 +341,28 @@ public class IEEE80211Parser {
 		
 		System.out.println("设备"+this.pcapFile.getName()+"\n"+"所有的IE的种类为"+this.IE.size());
 		Set<ArrayList<Integer>> keys = this.IE.keySet();
+		
 		for(ArrayList<Integer> item : keys) {
 			System.out.print("[");
 			for (Integer type : item) {
 				System.out.print(type+",");
 			}
-			System.out.print("]");
+			System.out.print("]， ");
 			
-			System.out.println(", 该种信息元素的个数为 " + this.IE.get(item)+"  ");
+			System.out.print("含有该信息元素种类的帧数为 " + this.IE.get(item)+",  ");
+			if (item.contains(45)) {
+				System.out.print("HT Cap Info: " + this.HTSet.get(item));
+			}
+			
+			System.out.println();
 		}
 		System.out.println();
+		
+//		System.out.println("HT Capabilities Info 信息元素总共存在的值有 "+ this.HTSet.size()+" 种，分别是：");
+//		for (String HT: this.HTSet) {
+//			System.out.println(HT+", ");
+//		}
+		
 	}
 	
 	public Map<ArrayList<Integer>, Integer> getInfoElem() {

@@ -17,7 +17,11 @@ import statistic.StatisticUtil;
 import structure.IEEE80211ManagementFrame;
 import util.DTWDistance;
 import util.DataUtils;
-
+/**
+ * 计算IFAT实验用的这个类
+ * @author longlong
+ *
+ */
 public class Processor {
 	private static int BIN_SIZE = 10000; //以10000us(10ms)为单位create bin
 	private Signature honor10;
