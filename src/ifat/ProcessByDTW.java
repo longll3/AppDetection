@@ -37,6 +37,13 @@ public class ProcessByDTW {
 		this.sigMap = new HashMap<>();
 	}
 	
+	/**
+	 * 
+	 * @param filename
+	 * @param deviceName
+	 * @param type
+	 * @throws IOException
+	 */
 	public void getBurstFeature(String filename, String deviceName, int type) throws IOException {
 		this.parser.setFile(new File(this.path+filename));
 		this.parser.parse();

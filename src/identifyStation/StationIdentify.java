@@ -96,6 +96,7 @@ public class StationIdentify {
 	
 	
 	//用于区分终端所需要用到的信息,加入了IFAT签名
+	//序列号，MAC地址集合，IFAT签名
 	private class StationInfoOfIFAT {
 
 		private ArrayList<IEEE80211ManagementFrame> frameList;
@@ -109,6 +110,7 @@ public class StationIdentify {
 			for (int i = 1; i < burst.size(); i++) {
 				frameArr.add(burst.get(i).getTimestamp()-burst.get(i-1).getTimestamp());
 			}
+			//将burst中的最后一帧的序列号set为lastSeq，为了跟下一个设备可以用帧号进行协助判断
 			setLastSeq(burst.get(burst.size()).getSeq_num());
 			sig = new Signature(frameArr);
 			frameList = new ArrayList<>();
@@ -161,6 +163,13 @@ public class StationIdentify {
 	}
 	
 	
+	/**
+	 * 通过序列号，MAC地址和IFAT签名来判断终端是否是同一个
+	 */
+	public void judgeBySeqAndMACAndIFATSig(IEEE80211ManagementFrame frame) {
+		
+	}
+	
 	
 	private boolean matchSeqNum(int lastSeq, int seq) {
 		//首先seq一定是比上一帧要大,且在一定范围内
@@ -205,7 +214,7 @@ public class StationIdentify {
 			//当最小距离都很大时，则认为时一个新的终端
 			StationInfoOfIFAT stationInfo = new StationInfoOfIFAT(burst);
 			
-			this.stationMapOfIFAT.put(1, stationInfo);
+//			this.stationMapOfIFAT.put(1, stationInfo);
 		} else {
 			ArrayList<Long> tt = new ArrayList<>();
 			for (Long ifat: burst_arr) tt.add(ifat);
@@ -430,9 +439,9 @@ public class StationIdentify {
 	
 	public static void main(String[] args) throws IOException {
 		StationIdentify identify = new StationIdentify();
-		identify.process("/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/"+"proreq-iphone7-others.pcap");
+//		identify.process("/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/"+"proreq-iphone7-others.pcap");
 //		identify.process("/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/"+"iphone7-1.pcap");
-//		identify.process("/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/"+"honor10-2-all.pcap");
+		identify.process("/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/"+"honor10-2.pcap");
 //		identify.process("/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/"+"honor10_all.pcap");
 		
 		identify.print();

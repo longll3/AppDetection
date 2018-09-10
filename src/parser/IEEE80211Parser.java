@@ -29,7 +29,7 @@ public class IEEE80211Parser {
 	
 	private File pcapFile;
 	private PcapStruct pcapStruct;
-	private Map<ArrayList<Integer>, Integer> IE; //key：信息元素合集
+	private Map<ArrayList<Integer>, Integer> IE; //key：信息元素合集，value：出现次数
 	
 	private Map<ArrayList<Integer>, String> HTSet;
 	
@@ -273,10 +273,12 @@ public class IEEE80211Parser {
 		int probeRequestLength = 24;
 		
 		ArrayList<Integer> IEArray = new ArrayList<>(); //probe request帧的信息元素种类的编码
-		Map<Integer, byte[]> IEs = new HashMap<>();
+		Map<Integer, byte[]> IEs = new HashMap<>(); //帧中的信息元素的键值对
 		
+		//解析该帧的信息元素，并将信息元素的种类放入IEArray 中，将信息元素的值放入IEs中
 		parseInformationElements(content, probeRequestLength+radioTapHeader.getHeader_length(), IEArray, IEs);
 		
+		//含有HT时
 		if (IEs.containsKey(45)) {
 			this.HTSet.put(IEArray, DataUtils.byte2HexStr(IEs.get(45), 0, 2));
 		}

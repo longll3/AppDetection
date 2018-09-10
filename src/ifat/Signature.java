@@ -20,7 +20,7 @@ public class Signature {
 	private Map<Integer, Double> burstSizeDistribution; //key, burst大小，value，该大小的burst所占的比例
 	private Map<Integer, Integer> burstSizeCount; //key, burst的大小，value， 该burst的大小出现的次数
 	
-	private int burstNum;
+	private int burstNum; // burst种类记数
 	
 //	private int mean;
 	private int mode; //burst size的众数
@@ -28,13 +28,24 @@ public class Signature {
 	private int max; //burst size的最大值
 
 	public Signature(ArrayList<Long> burst) {
+		this.burstSizeCount = new HashMap<>();
+		this.burstSizeDistribution = new HashMap<>();
+		this.sig = new HashMap<>();
+		this.IFATSum = new HashMap<>();
+		
 		int size = burst.size();;
 		mode = size;
 		min = size;
 		max = size;
 		burstNum = 1;
 		
-		IFATSum.put(burst.size(), burst.toArray(new Long[0]));
+		if (burst.size() < 2) {
+			System.err.println("burst size is < 2");
+		}
+		
+		Long[] a = burst.toArray(new Long[0]);
+		int s = burst.size();
+		IFATSum.put(s, a);
 		burstSizeCount.put(size, 1);
 	
 		Double[] p = new Double[size];
@@ -63,19 +74,36 @@ public class Signature {
 			burstSizeDistribution.put(key, p);
 		}
 		
-		int temp = burstSizeCount.get(burstSize);
-		temp++;
-		burstSizeCount.put(burstSize, temp);
-		
-		Long[] ifat = this.IFATSum.get(burst.size());
-		for (int i = 0; i < ifat.length; i++) {
-			ifat[i] += burst.get(i);
+		if (burstSizeCount.containsKey(burstSize)) {
+			int temp = burstSizeCount.get(burstSize);
+			temp++;
+			burstSizeCount.put(burstSize, temp);
+			
+			Long[] ifat = this.IFATSum.get(burst.size());
+			for (int i = 0; i < ifat.length; i++) {
+				ifat[i] += burst.get(i);
+			}
+			
+			Double[] meanIfat = this.sig.get(burstSize);
+			for (int i = 0; i < meanIfat.length; i++) {
+				meanIfat[i] =(double)ifat[i]/temp;
+			}
+			
+			System.out.println("sig 更新完毕");
+			
+		} else {
+			burstSizeCount.put(burstSize, 1);
+			IFATSum.put(burstSize, burst.toArray(new Long[0]));
+			
+			Double[] p = new Double[burstSize];
+			for (int i = 0; i < burstSize; i++ ) {
+				p[i] =  (double) burst.get(i);
+			}
+			sig.put(burstSize, p);
 		}
 		
-		Double[] meanIfat = this.sig.get(burstSize);
-		for (int i = 0; i < meanIfat.length; i++) {
-			meanIfat[i] =(double)ifat[i]/temp;
-		}
+		
+		
 		
 		
 	}

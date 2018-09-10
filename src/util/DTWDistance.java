@@ -21,6 +21,11 @@ public class DTWDistance{
 	}
 
 	public void setVariable(Double[] signature, Long[] test) {
+		if (signature == null || test == null ) {
+			System.err.println("signature or test is null");
+			return;
+		}
+		
 		this.test = test;
 		this.signature = signature;
 		//行对应signatu， 列对应test
