@@ -13,10 +13,10 @@ import org.jfree.ui.RefineryUtilities;
 
 import DrawFigure.BarChart;
 import parser.IEEE80211Parser;
-import statistic.StatisticUtil;
 import structure.IEEE80211ManagementFrame;
 import util.DTWDistance;
 import util.DataUtils;
+import util.StatisticUtil;
 /**
  * 计算IFAT实验用的这个类
  * @author longlong
@@ -338,15 +338,15 @@ public class Processor {
 //		int count_f = 0;
 //		int count_s = 0;
 //		
-//		Signature sig1 = new Signature(); // size > 8
-//		Signature sig2 = new Signature(); // size < 8
+//		SignatureForIFAT sig1 = new SignatureForIFAT(); // size > 8
+//		SignatureForIFAT sig2 = new SignatureForIFAT(); // size < 8
 //		
 //		File f = new File(path+f1);
 //		IEEE80211Parser parser = new IEEE80211Parser(f);
 //		parser.parse();
 //		
-//		IFATG_identify ifat = new IFATG_identify(parser.getTimeArray());
-//		Set<ArrayList<IEEE80211ManagementFrame>> set = ifat.groupInBurstSet();
+//		IFATG_identify process.process.ifat.ifat = new IFATG_identify(parser.getTimeArray());
+//		Set<ArrayList<IEEE80211ManagementFrame>> set = process.process.ifat.ifat.groupInBurstSet();
 //		
 //		
 //		for (ArrayList<IEEE80211ManagementFrame> item: set) {
@@ -366,8 +366,8 @@ public class Processor {
 //		
 //		parser.setFile(new File(path+"honor10-1.pcap"));
 //		parser.parse();
-//		ifat.initial(parser.getTimeArray());
-//		set = ifat.groupInBurstSet();
+//		process.process.ifat.ifat.initial(parser.getTimeArray());
+//		set = process.process.ifat.ifat.groupInBurstSet();
 //		for (ArrayList<IEEE80211ManagementFrame> item: set) {
 //			if (item.size() > 8) {
 //				count_s += item.size();

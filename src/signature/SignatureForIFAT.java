@@ -1,18 +1,12 @@
-package ifat;
+package signature;
 
-import java.awt.Frame;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.org.apache.bcel.internal.generic.INEG;
-import com.sun.org.apache.xpath.internal.operations.NotEquals;import jdk.internal.org.objectweb.asm.tree.IntInsnNode;
-import longll.IFAT;
-import sun.awt.event.IgnorePaintEvent;
 
-public class Signature {
+public class SignatureForIFAT {
 //	private int size; //有的设备有两种size的burst
 	
 	private Map<Integer, Double[]> sig; //key，burst大小，value，对应burst大小下的平均IFAT
@@ -27,7 +21,7 @@ public class Signature {
 	private int min; //burst size的最小值
 	private int max; //burst size的最大值
 
-	public Signature(ArrayList<Long> burst) {
+	public SignatureForIFAT(ArrayList<Long> burst) {
 		this.burstSizeCount = new HashMap<>();
 		this.burstSizeDistribution = new HashMap<>();
 		this.sig = new HashMap<>();
@@ -108,7 +102,7 @@ public class Signature {
 		
 	}
 	
-	public Signature(Set<ArrayList<Long>> burstSet) {
+	public SignatureForIFAT(Set<ArrayList<Long>> burstSet) {
 		this.burstNum = burstSet.size();
 		this.burstSizeCount = new HashMap<>();
 		burstSizeDistribution = new HashMap<>();

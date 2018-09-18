@@ -1,10 +1,10 @@
-package identifyStation.stationInfoMap;
+package process.identifyStation.stationInfoMap;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import ifat.Signature;
+import signature.SignatureForIFAT;
 import structure.IEEE80211ManagementFrame;
 
 /**
@@ -19,7 +19,7 @@ public class StationInfoWithIFAT {
 	private int lastSeq;
 	//区分后的MAC地址集 
 	private Set<String> MACs;
-	private Signature sig;
+	private SignatureForIFAT sig;
 	
 	public StationInfoWithIFAT(ArrayList<IEEE80211ManagementFrame> burst) {
 		this.frameList = new ArrayList<>();
@@ -31,7 +31,7 @@ public class StationInfoWithIFAT {
 		}
 		//将burst中的最后一帧的序列号set为lastSeq  ？？？？为什么要这样呢？？？？
 		setLastSeq(burst.get(burst.size()-1).getSeq_num());
-		sig = new Signature(frameArr);
+		sig = new SignatureForIFAT(frameArr);
 		frameList.addAll(burst);
 		MACs.add(burst.get(0).getSr_mac());
 		
@@ -59,7 +59,7 @@ public class StationInfoWithIFAT {
 		return re;
 	}
 	
-	public Signature getSig() {
+	public SignatureForIFAT getSig() {
 		return this.sig;
 	}
 	

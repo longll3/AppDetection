@@ -1,4 +1,4 @@
-package identifyStation;
+package process.identifyStation;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,13 +7,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.PrimitiveIterator.OfDouble;
 
-import javax.swing.text.StyledEditorKit.ForegroundAction;
-
-import identifyStation.stationInfoMap.StationInfoWithIFAT;
-import ifat.Signature;
+import signature.SignatureForIFAT;
 import parser.IEEE80211Parser;
+import process.identifyStation.stationInfoMap.StationInfoWithIFAT;
 import structure.IEEE80211ManagementFrame;
 import util.DTWDistance;
 
@@ -104,7 +101,7 @@ public class StationIdentifyWithIFAT {
 			}
 			
 			StationInfoWithIFAT stationInfoWithIFAT = stationMap.get(i);
-			Signature signature = stationInfoWithIFAT.getSig();
+			SignatureForIFAT signature = stationInfoWithIFAT.getSig();
 			
 			Double sig[] = signature.getSig().get(burst.size());
 			if (sig == null) {

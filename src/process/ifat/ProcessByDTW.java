@@ -1,4 +1,4 @@
-package ifat;
+package process.ifat;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,18 +13,15 @@ import org.jfree.ui.RefineryUtilities;
 
 import DrawFigure.BarChart;
 import parser.IEEE80211Parser;
-import statistic.StatisticUtil;
+import signature.SignatureForIFAT;
 import structure.IEEE80211ManagementFrame;
 import util.DTWDistance;
+import util.StatisticUtil;
 
 public class ProcessByDTW {
 	private static int BIN_SIZE = 10000; //以10000us(10ms)为单位create bin
 	
-	private Map<String, Signature> sigMap;
-//	private Signature mate9;
-//	private Signature mate7;
-//	private Signature honor10;
-//	private Signature pad;
+	private Map<String, SignatureForIFAT> sigMap;
 	
 	private DTWDistance dtw;
 	
@@ -95,7 +92,7 @@ public class ProcessByDTW {
 		
 		Set<ArrayList<Long>> burstSet = getBurstSetBySeqNum(this.parser.getTimeArray());
 		
-		this.sigMap.put("mate7", new Signature(burstSet));
+		this.sigMap.put("mate7", new SignatureForIFAT(burstSet));
 		
 	}
 	
@@ -105,7 +102,7 @@ public class ProcessByDTW {
 		
 		Set<ArrayList<Long>> burstSet = getBurstSetBySeqNum(this.parser.getTimeArray());
 		
-		this.sigMap.put("mate9", new Signature(burstSet));
+		this.sigMap.put("mate9", new SignatureForIFAT(burstSet));
 	}
 	
 	//要记录两个
@@ -115,7 +112,7 @@ public class ProcessByDTW {
 		
 		Set<ArrayList<Long>> burstSet = getBurstSetByMAC(this.parser.getTimeArray());
 		
-		this.sigMap.put("honor10", new Signature(burstSet));
+		this.sigMap.put("honor10", new SignatureForIFAT(burstSet));
 		
 		
 		
@@ -127,7 +124,7 @@ public class ProcessByDTW {
 		
 		Set<ArrayList<Long>> burstSet = getBurstSetBySeqNum(this.parser.getTimeArray());
 		
-		this.sigMap.put("pad", new Signature(burstSet));
+		this.sigMap.put("pad", new SignatureForIFAT(burstSet));
 	}
 	
 	public void processOniPhone(String filename, String device) throws IOException {
@@ -140,7 +137,7 @@ public class ProcessByDTW {
 		
 		Set<ArrayList<Long>> burstSet = getBurstSetByMAC(this.parser.getTimeArray());
 		
-		this.sigMap.put(device, new Signature(burstSet));
+		this.sigMap.put(device, new SignatureForIFAT(burstSet));
 		
 	}
 	
@@ -150,7 +147,7 @@ public class ProcessByDTW {
 		
 		Set<ArrayList<Long>> burstSet = getBurstSetBySeqNum(this.parser.getTimeArray());
 		
-		this.sigMap.put("ipad", new Signature(burstSet));
+		this.sigMap.put("ipad", new SignatureForIFAT(burstSet));
 	}
 	
 	public void processOnMac() throws IOException {
@@ -159,7 +156,7 @@ public class ProcessByDTW {
 		
 		Set<ArrayList<Long>> burstSet = getBurstSetBySeqNum(this.parser.getTimeArray());
 		
-		this.sigMap.put("mac", new Signature(burstSet));
+		this.sigMap.put("mac", new SignatureForIFAT(burstSet));
 	}
 	
 	public void calDisFromOtherOfMate9() throws IOException {
@@ -190,7 +187,7 @@ public class ProcessByDTW {
 			
 			for (String key: keys) {
 				
-				Signature sig = sigMap.get(key);
+				SignatureForIFAT sig = sigMap.get(key);
 //				for (int j = 0; j < sig.getBurstSizeDistribution().size(); j++) {
 					if (sig.getBurstSizeDistribution().containsKey(burst.size()) ) {
 						double distance = dtw.getDTWDistance(sig.getSig().get(burst.size()), burst_arr);
@@ -268,7 +265,7 @@ public class ProcessByDTW {
 			
 			for (String key: keys) {
 				
-				Signature sig = sigMap.get(key);
+				SignatureForIFAT sig = sigMap.get(key);
 //				for (int j = 0; j < sig.getBurstSizeDistribution().size(); j++) {
 					if (sig.getBurstSizeDistribution().containsKey(burst.size()) ) {
 						double distance = dtw.getDTWDistance(sig.getSig().get(burst.size()), burst_arr);

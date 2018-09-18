@@ -2,22 +2,12 @@ package longll;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import org.jfree.ui.RefineryUtilities;
-
-import DrawFigure.BarChart;
-import identifyStation.StationIdentify;
-import ifat.ProcessByDTW;
 import parser.IEEE80211Parser;
 import parser.PcapFileParser;
-import statistic.StatisticUtil;
-import structure.IEEE80211ManagementFrame;
-import util.DataUtils;
+import process.ifat.ProcessByDTW;
+import process.identifyStation.StationIdentify;
 
 public class APP {
 	
@@ -69,7 +59,7 @@ public class APP {
 		
 		IFAT ifat = new IFAT();
 		ifat.setTimeArray(parser.getTimeArray());
-//		ifat.process();
+//		process.process.ifat.ifat.process();
 		ifat.process_by_IFAT("iphone7");
 		
 	}

@@ -1,28 +1,18 @@
-package identifyStation;
+package process.identifyStation;
 
-import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.javafx.geom.AreaOp.AddOp;
-import com.sun.org.apache.bcel.internal.generic.I2F;
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
-import com.sun.prism.paint.Gradient;
-
 import DeviceMap.DeviceMap;
-import ifat.Signature;
+import signature.SignatureForIFAT;
 import parser.IEEE80211Parser;
 import structure.IEEE80211ManagementFrame;
-import sun.applet.Main;
-import sun.nio.cs.ext.TIS_620;
 import util.DTWDistance;
-import util.DataUtils;
 
 /**
  * 终端随机mac地址追踪
@@ -103,7 +93,7 @@ public class StationIdentify {
 		private int lastSeq;
 		//区分后的MAC地址集 
 		private Set<String> MACs;
-		private Signature sig;
+		private SignatureForIFAT sig;
 		
 		public StationInfoOfIFAT(ArrayList<IEEE80211ManagementFrame> burst) {
 			ArrayList<Long> frameArr = new ArrayList<>();
@@ -112,7 +102,7 @@ public class StationIdentify {
 			}
 			//将burst中的最后一帧的序列号set为lastSeq，为了跟下一个设备可以用帧号进行协助判断
 			setLastSeq(burst.get(burst.size()).getSeq_num());
-			sig = new Signature(frameArr);
+			sig = new SignatureForIFAT(frameArr);
 			frameList = new ArrayList<>();
 			frameList.addAll(burst);
 			MACs.add(burst.get(0).getSr_mac());
@@ -193,7 +183,7 @@ public class StationIdentify {
 		double minDistance = Double.MAX_VALUE;
 		for (int i = 1; i < this.stationMap.size(); i++) {
 			StationInfoOfIFAT stationInfo = this.stationMapOfIFAT.get(i);
-			Signature sig = stationInfo.sig;  
+			SignatureForIFAT sig = stationInfo.sig;
 			
 			double distance = dtw.getDTWDistance(sig.getSig().get(burst.size()), burst_arr);
 //			double factor = (1-sig.getBurstSizeDistribution().get(burst.size());

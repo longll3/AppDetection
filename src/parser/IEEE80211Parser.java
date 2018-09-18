@@ -3,11 +3,9 @@ package parser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,8 +63,8 @@ public class IEEE80211Parser {
 	public void parse() throws IOException {
 		this.timeArray = new ArrayList<>();
 		this.pcapStruct = new PcapStruct();
-		this.IE = new HashMap();
-		this.HTSet = new HashMap();
+		this.IE = new HashMap<>();
+		this.HTSet = new HashMap<>();
 		
 		FileInputStream fis = null;
 		try {
@@ -90,8 +88,9 @@ public class IEEE80211Parser {
 				while (m > 0) {
 					PcapDataHeader dataHeader = parseDataHeader(data_header);
 					pcapStruct.getDataHeaders().add(dataHeader);
-					
+
 					byte content[] = new byte[dataHeader.getCaplen()];
+
 					m = fis.read(content);
 					
 					boolean isDone = parseContent(content);
@@ -104,8 +103,12 @@ public class IEEE80211Parser {
 				}
 				
 			}
-		} finally {
-			fis.close();
+		} catch (IOException e) {
+			System.out.println(pcapFile + " 不存在");
+		}
+		finally {
+			if (fis != null)
+				fis.close();
 		}
 		return;
 	}
