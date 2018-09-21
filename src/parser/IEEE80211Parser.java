@@ -104,7 +104,7 @@ public class IEEE80211Parser {
 				
 			}
 		} catch (IOException e) {
-			System.out.println(pcapFile + " 不存在");
+			System.err.println(pcapFile + " 不存在");
 		}
 		finally {
 			if (fis != null)

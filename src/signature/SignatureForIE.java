@@ -23,6 +23,9 @@ public class SignatureForIE {
 		//比较IE中的每个元素，是否相等
 		Set<Integer> keys = a.keySet();
 		for (Integer key : keys) {
+			//跳过SSID的比较（该信息元素太个性化）
+			if (key == 0) continue;
+
 			if (b.containsKey(key)) {
 				byte[] compare = b.get(key);
 				byte[] to = a.get(key);

@@ -12,10 +12,44 @@ import parser.IEEE80211Parser;
 import signature.SignatureForIE;
 import structure.IEEE80211ManagementFrame;
 
+enum DeviceMap {
+	IPHONE7("iPhone7 Plus", new String[]{"iphone7_1.pcap"}), IPHONE6S("iPhone6s", new String[]{"iphon6s_1.pcap"}),
+	MACBOOK("MacBook Pro", new String[]{"lll-mac-pure.pcap","sam-mac-1.pcap"}),
+//	MACBOOK("MacBook Pro", new String[]{"lll-mac-pure.pcap"}),//"sam-mac-1.pcap"}),
+//	MACBOOK("MacBook Pro", new String[]{"sam-mac-1.pcap"}),
+	IPAD("iPad", new String[]{"ipad-1-.pcap"}),
+
+//	MATE7_1("华为mate7", new String[]{"mate72-size1000-209-1000.pcap", "mate71-203-1000.pcap"}),
+//	MATE7_1("华为mate7", new String[]{"mate72-size1000-209-1000.pcap"}),
+//	MATE7_1("华为mate7", new String[]{"mate71-203-1000.pcap"}),
+//	HONOR10("华为荣耀10", new String[]{"honor1.pcap"}), MATE_9("华为mate9",new String[]{"mate9-1-200.pcap"}),
+//	HUAWEIPAD("华为 Pad", new String[]{"huaweipad-1-1-218.pcap"}),
+
+	MI4("小米4",new String[]{"mi4-1-200.pcap"}), MI6("小米6",new String[]{"mi6-1-149.pcap"});
+
+	private String deviceName;
+	private String[] fileNames;
+
+	private DeviceMap(String name, String[] fileNames) {
+		this.deviceName = name;
+		this.fileNames = fileNames;
+	}
+
+	public String getDeviceName() {
+		return this.deviceName;
+	}
+
+	public String[] getFileNames() {
+		return this.fileNames;
+	}
+}
+
+
+
 public class BrandIdentify {
 	
 	private IEEE80211Parser parser = new IEEE80211Parser();
-	public int burstNum = 0;
+	public int frameNun = 0;
 	
 	private Map<String, SignatureForIE> sigs = new HashMap<>();
 	
@@ -24,35 +58,47 @@ public class BrandIdentify {
 		BrandIdentify brandIdentify = new BrandIdentify();
 		brandIdentify.generateSigs();
 		
-		String path = "/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/";
+		String path = "/Users/longlong/Documents/周报/ifat实验/packets/";
 //		String fileNames = "honor10-2.pcap";
 //		String fileNames = "HUAWEI-pad-2.pcap";
-//		String fileNames = "mate71-1-202.pcap";
-		String fileName = "mate9-all.pcap";
-		
-		brandIdentify.parser.setFile(new File(path+fileName));
-		brandIdentify.parser.parse();
+		//小米
+//		String fileNames[] = new String[]{"mi4-test-251frames.pcap", "mi6-test-391frames.pcap"};
 
-		Map<String, Integer> result = new HashMap<>();
-		Set<ArrayList<IEEE80211ManagementFrame>> burstSet = getBurstSetBySeqNum(brandIdentify.parser.getTimeArray());
-//		Set<ArrayList<IEEE80211ManagementFrame>> burstSet = getBurstSetByMac(brandIdentify.parser.getTimeArray());
-		for (ArrayList<IEEE80211ManagementFrame> burst : burstSet) {
-			String brand = brandIdentify.judgeForBurst(burst.get(0).getIEs());
-			if (result.containsKey(brand)) {
-				int count = result.get(brand);
-				result.put(brand, count+1);
-			} else {
-				result.put(brand, 1);
+		//苹果系列
+//		"mate9-all.pcap", "mate71-1-202.pcap"};
+		String fileNames[] = new String[]{"iphon6s_nowifi_IFAT.pcap", "iphone7p/only-iphone7-nowifi-to-withwifi.pcap",
+								"sam-mac-test-1-150.pcap", "lll-mac-test-1-150.pcap", "ipad-test-1-150.pcap"};
+
+		//华为系列
+//		String fileNames[] = new String[]{"HUAWEI-pad-2.pcap", "mate9-201-503.pcap", "honor10-2-test-1-200.pcap",
+//				"mate71-1-202.pcap","mate72-size1000-1-208.pcap"};
+		for (String fileName : fileNames) {
+			brandIdentify.frameNun = 0;
+			brandIdentify.parser.setFile(new File(path+fileName));
+			brandIdentify.parser.parse();
+
+			Map<String, Integer> result = new HashMap<>();
+
+			for (IEEE80211ManagementFrame frame: brandIdentify.parser.getTimeArray()) {
+				String brand = brandIdentify.judgeForFrame(frame.getIEs());
+				if (result.containsKey(brand)) {
+					int count = result.get(brand);
+					result.put(brand, count+1);
+				} else {
+					result.put(brand, 1);
+				}
+				brandIdentify.frameNun++;
 			}
-			brandIdentify.burstNum++;
+
+			System.out.println("测试设备："+fileName+", probe request帧总数为"+brandIdentify.frameNun);
+			Set<String> brands = result.keySet();
+			for (String brand : brands) {
+				System.out.println("属于 "+brand+" 的probe request 帧个数为"+result.get(brand));
+			}
+			System.out.println();
+
 		}
-		
-		System.out.println("burst总数为"+brandIdentify.burstNum);
-		Set<String> brands = result.keySet();
-		for (String brand : brands) {
-			System.out.println("属于 "+brand+" 的burst个数为"+result.get(brand));
-		}
-		
+
 		
 	}
 
@@ -78,7 +124,7 @@ public class BrandIdentify {
 		return burstSet;
 	}
 
-	private String judgeForBurst(Map<Integer, byte[]> IEs) {
+	private String judgeForFrame(Map<Integer, byte[]> IEs) {
 		Set<String> brands = this.sigs.keySet();
 		for (String brand : brands) {
 			SignatureForIE signature = this.sigs.get(brand);
@@ -94,10 +140,11 @@ public class BrandIdentify {
 	private void generateSigs() throws IOException {
 		String path = "/Users/longlong/Documents/周报/ifat实验/packets/";
 
-		Runtime run = Runtime.getRuntime();
+//		Runtime run = Runtime.getRuntime();
 //		System.out.println(run.totalMemory());
 
 		for (DeviceMap device : DeviceMap.values()) {
+			SignatureForIE sig = new SignatureForIE();
 			for (String fileName : device.getFileNames()) {
 //				System.out.println(fileName+" parser前的内存："+(run.freeMemory()));
 
@@ -108,12 +155,13 @@ public class BrandIdentify {
 				r.parse();
 
 //				System.out.println(fileName+" parser后的内存："+(run.freeMemory()));
-				SignatureForIE sig = new SignatureForIE();
+
 				for (IEEE80211ManagementFrame frame : r.getTimeArray()) {
 					sig.updateSignature(frame.getIEs());
 				}
-				this.sigs.put(device.getDeviceName(), sig);
+
 			}
+			this.sigs.put(device.getDeviceName(), sig);
 
 		}
 		
@@ -136,7 +184,6 @@ public class BrandIdentify {
 				//belongs to a same burst
 				node.add(now);
 			} else {
-				//padding burst
 				set.add(node);
 				node = new ArrayList<>();
 				node.add(now);
@@ -148,30 +195,4 @@ public class BrandIdentify {
 	}
 }
 
-enum DeviceMap {
-	IPHONE7("iPhone7 Plus", new String[]{"iphone7_1.pcap"}), IPHONE6S("iPhone6s", new String[]{"iphon6s_1.pcap"}),
-	MACBOOK("MacBook Pro", new String[]{"lll-mac-pure.pcap"}),
-
-	MATE7_1("华为mate7", new String[]{"mate71-1-202.pcap","mate72-size1000-1-208.pcap"}),
-	HONOR10("华为荣耀10", new String[]{"honor1.pcap"}), MATE_9("华为mate9",new String[]{"mate9-1-200.pcap"}),
-	HUAWEIPAD("华为 Pad", new String[]{"huaweipad-1-1-218.pcap"}),
-
-	MI4("小米4",new String[]{"mi4-1-200.pcap"}), MI6("小米6",new String[]{"mi6-1.pcap"});
-
-	private String deviceName;
-	private String[] fileNames;
-
-	private DeviceMap(String name, String[] fileNames) {
-		this.deviceName = name;
-		this.fileNames = fileNames;
-	}
-
-	public String getDeviceName() {
-		return this.deviceName;
-	}
-
-	public String[] getFileNames() {
-		return this.fileNames;
-	}
-}
 
