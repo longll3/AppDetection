@@ -6,7 +6,7 @@
 ---
 
 2018.9.8
-# ADDING IFAT IN MAC DEFEATING
+### ADDING IFAT IN MAC DEFEATING
 在识别使用随机mac地址的终端时，加入IFAT签名距离。
 
 2018.9.9
@@ -19,13 +19,14 @@
 
 可以看出，对于honor10终端的区分行不是很好，且将很多其他使用真实MAC地址的终端也归为honor的某些随机地址为一类了。
 
-2018.9.10
+####2018.9.10
 打算采用加权平均的方式
 但是分数的计算方式还没有想好
 
-2018.9.18
+####2018.9.18
 
-确定专利主题
+Identify patent topic，around *IE*
+---
 
 - 今天在生成各个品牌的签名的时候，第一次遇到了outOfMemory的问题。但是读入的文件没有一个超过1M的，于是去idea/bin目录下的idea.vmoptions去查看jvm的最大堆和最小堆大小，-Xms是最小堆，是128m，-Xmx是最大堆，是750m，不可能因为文件太大而溢出。
 - 于是回到代码中，
@@ -57,6 +58,13 @@ for (DeviceMap device : DeviceMap.values()) {
 //		System.out.println(run.freeMemory());```查看内存，发现所有文件都正常，除了“mi4.pcap”，于是尝试将该文件的头200条另存为mi4-1-200.pcap，果然就没有溢出了。
 然后定位到```r.parse();```函数题中的错误，```byte content[] = new byte[dataHeader.getCaplen()];```，问题出在这一行，将出错时的```dataHeader.getCaplen()```输出发现会有一个超过2000000000的值，也就是要读进超过2g的内容，所以内存溢出了。
 		
+
+####2019.9.21
+
+---
+
+对于手里所有的终端都进行了实验，要注意的一点是：IE中的SSID不应作为匹配元素，因为该值是终端的特有属性，因此因掠过其的比较。
+但是iPhone7p和华为Pad的准确率低于正常水平，都低于了50%。还需要再研究一下。
 
 
 
