@@ -13,19 +13,23 @@ import signature.SignatureForIE;
 import structure.IEEE80211ManagementFrame;
 
 enum DeviceMap {
-	IPHONE7("iPhone7 Plus", new String[]{"iphone7_1.pcap"}), IPHONE6S("iPhone6s", new String[]{"iphon6s_1.pcap"}),
-	MACBOOK("MacBook Pro", new String[]{"lll-mac-pure.pcap","sam-mac-1.pcap"}),
+//	IPHONE7("iPhone7 Plus", new String[]{"iphone7p/iphone7-1.pcap"});
+//	IPHONE7("iPhone7 Plus", new String[]{"iphone7p/iphone7-1.pcap"}),
+//	IPHONE6S("iPhone6s", new String[]{"iphon6s_1.pcap"}),
+//	MACBOOK("MacBook Pro", new String[]{"lll-mac-pure.pcap","sam-mac-1.pcap"}),
 //	MACBOOK("MacBook Pro", new String[]{"lll-mac-pure.pcap"}),//"sam-mac-1.pcap"}),
 //	MACBOOK("MacBook Pro", new String[]{"sam-mac-1.pcap"}),
-	IPAD("iPad", new String[]{"ipad-1-.pcap"}),
+//	IPAD("iPad", new String[]{"ipad-1-.pcap"}),
 
-//	MATE7_1("华为mate7", new String[]{"mate72-size1000-209-1000.pcap", "mate71-203-1000.pcap"}),
+	MATE7_1("华为mate7", new String[]{"mate72-size1000-209-1000.pcap", "mate71-203-1000.pcap"}),
 //	MATE7_1("华为mate7", new String[]{"mate72-size1000-209-1000.pcap"}),
 //	MATE7_1("华为mate7", new String[]{"mate71-203-1000.pcap"}),
-//	HONOR10("华为荣耀10", new String[]{"honor1.pcap"}), MATE_9("华为mate9",new String[]{"mate9-1-200.pcap"}),
-//	HUAWEIPAD("华为 Pad", new String[]{"huaweipad-1-1-218.pcap"}),
+	HONOR10("华为荣耀10", new String[]{"honor1.pcap"}),
+	MATE_9("华为mate9",new String[]{"mate9-1-200.pcap"}),
+//	HUAWEIPAD("华为 Pad", new String[]{"huaweipad-1-1-218.pcap"});pad-all.pcap
+	HUAWEIPAD("华为 Pad", new String[]{"pad-all.pcap"});
 
-	MI4("小米4",new String[]{"mi4-1-200.pcap"}), MI6("小米6",new String[]{"mi6-1-149.pcap"});
+//	MI4("小米4",new String[]{"mi4-1-200.pcap"}), MI6("小米6",new String[]{"mi6-1-149.pcap"});
 
 	private String deviceName;
 	private String[] fileNames;
@@ -59,19 +63,19 @@ public class BrandIdentify {
 		brandIdentify.generateSigs();
 		
 		String path = "/Users/longlong/Documents/周报/ifat实验/packets/";
-//		String fileNames = "honor10-2.pcap";
-//		String fileNames = "HUAWEI-pad-2.pcap";
+
 		//小米
 //		String fileNames[] = new String[]{"mi4-test-251frames.pcap", "mi6-test-391frames.pcap"};
 
 		//苹果系列
 //		"mate9-all.pcap", "mate71-1-202.pcap"};
-		String fileNames[] = new String[]{"iphon6s_nowifi_IFAT.pcap", "iphone7p/only-iphone7-nowifi-to-withwifi.pcap",
-								"sam-mac-test-1-150.pcap", "lll-mac-test-1-150.pcap", "ipad-test-1-150.pcap"};
+//		String fileNames[] = new String[]{"iphone7p/iphone7-nowifi-to-withwifi.pcap"};
+//		String fileNames[] = new String[]{"iphon6s_nowifi_IFAT.pcap", "iphone7p/iphone7p-test-101frames.pcap",
+//								"sam-mac-test-1-150.pcap", "lll-mac-test-1-150.pcap", "ipad-test-1-150.pcap"};
 
 		//华为系列
-//		String fileNames[] = new String[]{"HUAWEI-pad-2.pcap", "mate9-201-503.pcap", "honor10-2-test-1-200.pcap",
-//				"mate71-1-202.pcap","mate72-size1000-1-208.pcap"};
+		String fileNames[] = new String[]{"pad_no_in_list.pcap", "mate9-201-503.pcap", "honor10-2-test-1-200.pcap",
+				"mate71-1-202.pcap","mate72-size1000-1-208.pcap"};
 		for (String fileName : fileNames) {
 			brandIdentify.frameNun = 0;
 			brandIdentify.parser.setFile(new File(path+fileName));
