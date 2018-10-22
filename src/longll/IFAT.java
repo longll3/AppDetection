@@ -4,13 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jfree.ui.RefineryUtilities;
-
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
 import DrawFigure.BarChart;
-import apple.laf.JRSUIConstants.Size;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import structure.IEEE80211ManagementFrame;
 
 

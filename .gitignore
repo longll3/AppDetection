@@ -1,3 +1,7 @@
 /bin/
 .idea/workspace.xml
-
+.idea/codeStyles/codeStyleConfig.xml
+.idea/uiDesigner.xml
+.idea/workspace.xml
+.project
+AppDetection.iml
