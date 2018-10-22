@@ -5,3 +5,6 @@
 .idea/workspace.xml
 .project
 AppDetection.iml
+*.xml
+.project
+AppDetection.iml
