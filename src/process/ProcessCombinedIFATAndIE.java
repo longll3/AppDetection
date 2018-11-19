@@ -1,14 +1,11 @@
-package process.ifat;
+package process;
+
 
 import parser.IEEE80211Parser;
 import process.brandByIE.DeviceMap;
-import signature.Figure;
-import signature.FigureForIFAT;
-import signature.SigControl;
-import signature.SigForIFAT;
+import signature.*;
 import structure.IEEE80211ManagementFrame;
 import util.DTWDistance;
-import util.PreProcess;
 import util.PropertiesReader;
 
 import java.io.File;
@@ -18,18 +15,30 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Processor {
+/**
+ * a method combining IFAT method and IE method
+ */
+public class ProcessCombinedIFATAndIE implements Processor  {
+    IEEE80211Parser parser = new IEEE80211Parser();
 
-    private Map<String, SigControl> sigMap = new HashMap<>();
+    Map<String, SigControl> sigIFAT = new HashMap<>();
+    Map<String, SigControl> sigIE = new HashMap<>();
 
-    public void generatesSigs() throws IOException {
+
+    public ProcessCombinedIFATAndIE() {}
+
+
+    @Override
+    public void generatesSignature() throws IOException {
         PropertiesReader propertiesReader = PropertiesReader.getPropertiesReader();
         String path = propertiesReader.getProperty("rootPath");
 
         IEEE80211Parser parser = new IEEE80211Parser();
 
         for (DeviceMap device : DeviceMap.values()) {
-            SigControl sigControl = new SigForIFAT();
+            SigControl sigIE = new SigForIE();
+            SigControl sigIFAT = new SigForIFAT();
+
             for (String fileName : device.getFileNames()) {
                 parser.setFile(new File(path+fileName));
 
@@ -38,20 +47,35 @@ public class Processor {
                 System.out.println(device.getDeviceName()+": ");
                 ArrayList<ArrayList<IEEE80211ManagementFrame>> frameSet = new ArrayList<>();
                 Set<ArrayList<Double>> burstSet = SigForIFAT.getBurstSetBySeqNum(parser.getTimeArray(), frameSet);
+                for (ArrayList<Double> burst : burstSet) {
+                    ((SigForIFAT) sigIFAT).updateSig(burst);
+                }
 
-                this.sigMap.put(device.getDeviceName(), new SigForIFAT(burstSet));
+
+                for (IEEE80211ManagementFrame frame : parser.getTimeArray()) {
+//					sig.updateSignature(frame.getSequenceIEs());
+                    sigIE.updateSignature(new FigureForIE(frame.getIEs(), frame.getIE()));
+                }
+
+
+
             }
+            this.sigIE.put(device.getDeviceName(), sigIE);
+            this.sigIFAT.put(device.getDeviceName(), sigIFAT);
         }
 
     }
 
-    public void calDisFromOther() throws IOException {
+    @Override
+    public void process() throws IOException {
         PropertiesReader propertiesReader = PropertiesReader.getPropertiesReader();
         String path = propertiesReader.getProperty("rootPath");
 
-        IEEE80211Parser parser = new IEEE80211Parser();
+        int frameNun = 0;
 
         for (DeviceMap device : DeviceMap.values()) {
+
+            int index = 0;
 
             Map<String, Integer> statis = new HashMap<>();
 
@@ -71,6 +95,7 @@ public class Processor {
             ArrayList<ArrayList<IEEE80211ManagementFrame>> frameSet = new ArrayList<>();
             Set<ArrayList<Double>> burstSet = SigForIFAT.getBurstSetBySeqNum(parser.getTimeArray(), frameSet);
 
+
             for (ArrayList<Double> burst : burstSet) {
                 String result = calOneBurstDis(burst);
 
@@ -79,6 +104,11 @@ public class Processor {
                 } else {
                     deviceCount.put(result, 1);
                 }
+
+                String brand = judgeForFrame(SignatureForIE.extractSignature(frameSet.get(index).get(0).getIEs()));
+
+                System.out.println("测试设备："+device.getDeviceName()+", 属于"+ brand);
+                index ++;
 
             }
 
@@ -90,9 +120,23 @@ public class Processor {
             System.out.print("down\n\n");
 
         }
-
     }
 
+    private String judgeForFrame(Map<Integer, byte[]> IEs) {
+        Set<String> brands = this.sigIE.keySet();
+        for (String brand : brands) {
+//			SignatureForSequenceIE signature = this.sigs.get(brand);
+//			SignatureForIE signature = this.sigs.get(brand);
+            SigControl signature = this.sigIE.get(brand);
+            if (signature.isBelongToTheType(new FigureForIE(IEs, null))) {
+                return brand;
+            }
+        }
+
+        return "no brand match";
+
+
+    }
 
     public String calOneBurstDis(ArrayList<Double> burst) {
 
@@ -101,10 +145,10 @@ public class Processor {
 
         String predictiveDeviceName = "";
 
-        Set<String> keys = this.sigMap.keySet();
+        Set<String> keys = this.sigIFAT.keySet();
 
         for (String key : keys) {
-            SigForIFAT sig = (SigForIFAT) sigMap.get(key);
+            SigForIFAT sig = (SigForIFAT) sigIFAT.get(key);
 
             Figure figure = new FigureForIFAT(burst_arr);
 
@@ -124,23 +168,9 @@ public class Processor {
 
         }
 
-//        System.out.println("\nbelong to device " + predictiveDeviceName + "\n");
+        System.out.println("\nbelong to device " + predictiveDeviceName + "\n");
 
         return predictiveDeviceName;
     }
-
-
-    public static void main(String[] args) throws IOException {
-        Processor processor = new Processor();
-        processor.generatesSigs();
-
-        System.out.println("签名构建完毕");
-
-        processor.calDisFromOther();
-    }
-
-
-
-
 
 }

@@ -1,8 +1,6 @@
 package signature;
 
-import com.sun.tools.corba.se.idl.Preprocessor;
-import org.w3c.dom.ls.LSOutput;
-import process.ifat.Processor;
+
 import structure.IEEE80211ManagementFrame;
 import util.PreProcess;
 
@@ -191,7 +189,7 @@ public class SigForIFAT implements SigControl {
      * @param list the all frames list
      * @return burst set
      */
-    public static Set<ArrayList<Double>> getBurstSetBySeqNum(ArrayList<IEEE80211ManagementFrame> list) {
+    public static Set<ArrayList<Double>> getBurstSetBySeqNum(ArrayList<IEEE80211ManagementFrame> list, ArrayList<ArrayList<IEEE80211ManagementFrame>> frameSet) {
 
         int busrtSizeOne = 0;
         int busrtSizeTwo = 0;
@@ -236,6 +234,7 @@ public class SigForIFAT implements SigControl {
 
                     //归一化
                   set.add(PreProcess.minMaxNormalization(paddingBurst(node)));
+                  frameSet.add(node);
 
                 }
 
