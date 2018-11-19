@@ -2,6 +2,7 @@ package test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import longll.IFATG_identify;
 import longll.Signature;
@@ -9,9 +10,8 @@ import parser.IEEE80211Parser;
 
 public class IFATTest {
 	public static final int DTW_NUM=10;  
-    public static void main(String[] args) {  
-        // TODO Auto-generated method stub  
-        dtw();  
+    public static void main(String[] args) {
+//        dtw();
     }  
       
     public static double Min(double a1,double b1){  

@@ -7,6 +7,16 @@ package structure;
  */
 public class PcapFileHeader {
 	private int magic;                  	// 标识位，这个标识位的值是16进制的 0xa1b2c3d4（4个字节）
+
+	public String getMagicNum() {
+		return magicNum;
+	}
+
+	public void setMagicNum(String magicNum) {
+		this.magicNum = magicNum;
+	}
+
+	private String magicNum;				// 标识位，这个标识位的值是16进制的 0xa1b2c3d4（4个字节）
     private short magorVersion;     		// 主版本号（2个字节）
     private short minorVersion;     		// 副版本号（2个字节）
     private int timezone;               	// 区域时间（4个字节）

@@ -146,8 +146,8 @@ public class StationIdentify {
 		this.parser.printIE();
 		
 		for (IEEE80211ManagementFrame frame: this.parser.getTimeArray()) {
-//			judgeBySeqAndIEType(frame);
-			judgeBySeqAndHTCapInfo(frame);
+			judgeBySeqAndIEType(frame);
+//			judgeBySeqAndHTCapInfo(frame);
 		}
 		
 	}
@@ -422,7 +422,7 @@ public class StationIdentify {
 			System.out.print("设备MAC地址集为：");
 			for (String mac: macSet) System.out.print(mac+", ");
 			System.out.println("");
-//			System.out.println();
+			System.out.println();
 		}
 		
 	}
@@ -431,9 +431,12 @@ public class StationIdentify {
 		StationIdentify identify = new StationIdentify();
 //		identify.process("/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/"+"proreq-iphone7-others.pcap");
 //		identify.process("/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/"+"iphone7-1.pcap");
-		identify.process("/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/"+"honor10-2.pcap");
-//		identify.process("/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/"+"honor10_all.pcap");
-		
+//		identify.process("/Users/longlong/master_work/学校内的研究工作/AppDetection&IFATexperience/test_data/"+"packet1.pcap");
+//		identify.process("/Users/longlong/Documents/研究生工作/ifat实验/packets/"+"honor10-2.pcap");
+//		identify.process("/Users/longlong/Documents/研究生工作/ifat实验/packets/"+"honor10_all.pcap");
+		identify.process("/Users/longlong/Documents/研究生工作/ifat实验/packets/"+"honor2.pcap");
+//		identify.process("/Users/longlong/Documents/研究生工作/ifat实验/packets/"+"honor10.pcap");
+
 		identify.print();
 		System.out.println("finish");
 //		
@@ -454,7 +457,7 @@ public class StationIdentify {
 		this.parser = new IEEE80211Parser(new File(path+file));
 		parser.openInfoElementsFlag();
 		DeviceMap.MATE7_2.setInfoElem(parser.getInfoElem());
-		System.out.println(DeviceMap.MATE7_2);
+ 		System.out.println(DeviceMap.MATE7_2);
 		
 		
 		parser.setFile(new File(path+"mate71-all.pcap"));

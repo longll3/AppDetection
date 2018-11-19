@@ -3,11 +3,7 @@ package parser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import structure.IEEE80211ManagementFrame;
 import structure.PcapDataHeader;
@@ -26,6 +22,11 @@ import util.DataUtils;
 public class IEEE80211Parser {
 	
 	private File pcapFile;
+
+	public PcapStruct getPcapStruct() {
+		return pcapStruct;
+	}
+
 	private PcapStruct pcapStruct;
 	private Map<ArrayList<Integer>, Integer> IE; //key：信息元素合集，value：出现次数
 	
@@ -130,6 +131,9 @@ public class IEEE80211Parser {
         }
         offset += 4;
         int magic = DataUtils.byteArrayToInt(buff_4);
+        String magicNum = DataUtils.byteArray2HexString(buff_4, 0, 4);
+        magicNum = magicNum.intern();
+        fileHeader.setMagicNum(magicNum);
         fileHeader.setMagic(magic);
 
         for (int i = 0; i < 2; i ++) {
@@ -185,29 +189,47 @@ public class IEEE80211Parser {
 	 * @return
 	 */
 	public PcapDataHeader parseDataHeader(byte[] data_header){
+		String magicNUm = pcapStruct.getFileHeader().getMagicNum();
+		boolean reverseFlag = false;
+		if (magicNUm == "D4C3B2A1") {
+			reverseFlag = true;
+		}
+
         byte[] buff_4 = new byte[4];
         PcapDataHeader dataHeader = new PcapDataHeader();
         int offset = 0;
         for (int i = 0; i < 4; i ++) {
             buff_4[i] = data_header[i + offset];
         }
-        offset += 4;
+		offset += 4;
+
+		if (reverseFlag) {
+			DataUtils.reverseByteArray(buff_4);
+		}
         int timeS = DataUtils.byteArrayToInt(buff_4);
         dataHeader.setTimeS(timeS);
 
+
         for (int i = 0; i < 4; i ++) {
             buff_4[i] = data_header[i + offset];
         }
-        offset += 4;
+		offset += 4;
+
+        if (reverseFlag) {
+			DataUtils.reverseByteArray(buff_4);
+		}
         int timeMs = DataUtils.byteArrayToInt(buff_4);
         dataHeader.setTimeMs(timeMs);
+
 
         for (int i = 0; i < 4; i ++) {
             buff_4[i] = data_header[i + offset];
         }
         offset += 4;
-        // 得先逆序在转为 int
-        DataUtils.reverseByteArray(buff_4);
+
+		if (reverseFlag) {
+			DataUtils.reverseByteArray(buff_4);
+		}
         int caplen = DataUtils.byteArrayToInt(buff_4);
         dataHeader.setCaplen(caplen);
 //      LogUtils.printObj("数据包实际长度", dataHeader.getCaplen());
@@ -217,7 +239,9 @@ public class IEEE80211Parser {
         }
         offset += 4;
 //              int len = DataUtils.byteArrayToInt(buff_4);
-        DataUtils.reverseByteArray(buff_4);
+		if (reverseFlag) {
+			DataUtils.reverseByteArray(buff_4);
+		}
         int len = DataUtils.byteArrayToInt(buff_4);
         dataHeader.setLen(len);
 
@@ -276,17 +300,18 @@ public class IEEE80211Parser {
 		int probeRequestLength = 24;
 		
 		ArrayList<Integer> IEArray = new ArrayList<>(); //probe request帧的信息元素种类的编码
-		Map<Integer, byte[]> IEs = new HashMap<>(); //帧中的信息元素的键值对
+		Map<Integer, byte[]> IEs = new LinkedHashMap<>(); //帧中的信息元素的键值对
+		LinkedHashMap<Integer, byte[]> sequenceIE = new LinkedHashMap<>();
 		
 		//解析该帧的信息元素，并将信息元素的种类放入IEArray 中，将信息元素的值放入IEs中
-		parseInformationElements(content, probeRequestLength+radioTapHeader.getHeader_length(), IEArray, IEs);
+		parseInformationElements(content, probeRequestLength+radioTapHeader.getHeader_length(), IEArray, IEs, sequenceIE);
 		
 		//含有HT时
 		if (IEs.containsKey(45)) {
 			this.HTSet.put(IEArray, DataUtils.byte2HexStr(IEs.get(45), 0, 2));
 		}
 		
-		timeArray.add(new IEEE80211ManagementFrame(timestamp, sr_mac, dst_mac, seq_num, IEs, IEArray));
+		timeArray.add(new IEEE80211ManagementFrame(timestamp, sr_mac, dst_mac, seq_num, IEs, IEArray, sequenceIE));
 //		System.out.println(timestamp);
 		
 		if (this.flag) {
@@ -319,7 +344,11 @@ public class IEEE80211Parser {
 		return seq_num;
 	}
 
-	public static void parseInformationElements(byte content[], int start, ArrayList<Integer> IEArray, Map<Integer, byte[]> IEs) {
+	/**
+	 * 注意：这里如果有重复的IE，那么会被覆盖掉，如有多个127，最后只会有1个
+	 */
+	public static void parseInformationElements(byte content[], int start, ArrayList<Integer> IEArray, Map<Integer, byte[]> IEs,
+												LinkedHashMap<Integer, byte[]> sequenceIE) {
 		
 		int length;
 		while (start < content.length-4) {
@@ -329,6 +358,7 @@ public class IEEE80211Parser {
 			byte[] values = (Arrays.copyOfRange(content, start, start+length));
 			
 			IEs.put(IE, values);
+			sequenceIE.put(IE, values);
 			
 			start += length;
 		}
@@ -373,5 +403,6 @@ public class IEEE80211Parser {
 	public Map<ArrayList<Integer>, Integer> getInfoElem() {
 		return this.IE;
 	}
+
 	
 }

@@ -1,6 +1,7 @@
 package structure;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class IEEE80211ManagementFrame {
@@ -11,6 +12,8 @@ public class IEEE80211ManagementFrame {
 	private int seq_num; //probe reqquest帧序列号
 	private ArrayList<Integer> IE; //probe request帧的信息元素的编码
 	private Map<Integer, byte[]> IEs; //probe request帧的信息元素的编码及byte[]值
+
+	private LinkedHashMap<Integer, byte[]> sequenceIEs; //使用linkedhashmap保存IE的出现顺序
 	
 	public int getSeq_num() {
 		return seq_num;
@@ -19,7 +22,7 @@ public class IEEE80211ManagementFrame {
 		this.seq_num = seq_num;
 	}
 	
-	
+	public LinkedHashMap<Integer, byte[]> getSequenceIEs() { return sequenceIEs; }
 	
 	public Map<Integer, byte[]> getIEs() {
 		return IEs;
@@ -27,7 +30,8 @@ public class IEEE80211ManagementFrame {
 	public void setIEs(Map<Integer, byte[]> iEs) {
 		IEs = iEs;
 	}
-	public IEEE80211ManagementFrame(long timestamp, String sr_mac, String dst_mac, int seq_num, Map<Integer, byte[]> IEs, ArrayList<Integer> IE) {
+
+	public IEEE80211ManagementFrame(long timestamp, String sr_mac, String dst_mac, int seq_num, Map<Integer, byte[]> IEs, ArrayList<Integer> IE, LinkedHashMap<Integer, byte[]> sequenceIEs) {
 		super();
 		this.timestamp = timestamp;
 		this.sr_mac = sr_mac;
@@ -35,6 +39,7 @@ public class IEEE80211ManagementFrame {
 		this.seq_num = seq_num;
 		this.IEs = IEs;
 		this.IE = IE;
+		this.sequenceIEs = sequenceIEs;
 	}
 	public long getTimestamp() {
 		return timestamp;

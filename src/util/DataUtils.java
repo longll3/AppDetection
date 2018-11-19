@@ -89,9 +89,27 @@ public class DataUtils {
 	 * @return
 	 */
 	public static int byteArrayToInt(byte[] b){
-		return byteArrayToInt(b, 0);
+		return byteArrayToUnsignedInt(b, 0);
+//		return byteArrayToInt(b, 0);
 	}
-	
+
+	/**
+	 * 一维字节数组转 int 值(4 字节)
+	 * @param b
+	 * @param offset
+	 * @return
+	 */
+	public static int byteArrayToUnsignedInt(byte[] bytes, int offset){
+		int value= 0;
+		//由高位到低位
+		for (int i = 0; i < 4; i++) {
+			int shift= (4 - 1 - i) * 8;
+			value +=(bytes[i] & 0x000000FF) << shift;//往高位游
+		}
+
+		return value&0x0FFFFFFFF;
+	}
+
 	/**
 	 * 一维字节数组转 int 值(4 字节)
 	 * @param b
@@ -103,7 +121,7 @@ public class DataUtils {
 		//由高位到低位
 		for (int i = 0; i < 4; i++) {
 			int shift= (4 - 1 - i) * 8;
-			value +=(bytes[i] & 0x000000FF) << shift;//往高位游
+			value +=(bytes[i] & 0x00FF) << shift;//往高位游
 		}
 
 		return value;

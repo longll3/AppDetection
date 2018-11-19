@@ -2,33 +2,45 @@ package longll;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 import parser.IEEE80211Parser;
 import parser.PcapFileParser;
 import process.ifat.ProcessByDTW;
 import process.identifyStation.StationIdentify;
+import process.ifat.Processor;
+import signature.SigForIFAT;
 
 public class APP {
 	
 	public static void main(String[] args) throws IOException {
-		StationIdentify id = new StationIdentify();
-		id.generateDataBase();
+//		StationIdentify id = new StationIdentify();
+//		id.generateDataBase();
+
+
+		testProcessorByDTW();
 	}
 	
 	public static void testProcessorByDTW() throws IOException {
 		
-		ProcessByDTW processor = new ProcessByDTW();
-		processor.processOnMate7();
-		processor.processOnMate9();
-		processor.processOnHonor10();
-		processor.processOnHWPad();
+		ProcessByDTW processorByDTW = new ProcessByDTW();
+		processorByDTW.processOnHuaWei();
 //		processor.processOniPhone("iphone7_nowifi_probe_request.pcap", "iphone7");
-//		processor.processOniPhone("iphon6s_1.pcap", "iphone6s");
-//		processor.processOnMac();
-//		processor.processOniPad();
-		processor.calDisFromOtherOfMate7();
-//		processor.calDisFromOtherOfIphone7();
+//		processorByDTW.processOnApple();
+		processorByDTW.calDisFromOtherOfMate7();
+//		processorByDTW.calDisFromOtherOfIphone7();
+
+
+
+		process.ifat.Processor processor = new Processor();
+		processor.generatesSigs();
+
+		System.out.println("签名构建完毕");
+
+		processor.calDisFromOther();
 	}
 	
 

@@ -1,25 +1,55 @@
 package signature;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SignatureForIE {
+
 	private Set<Map<Integer, byte[]>> IEs = new HashSet<>();
 
 	public SignatureForIE() {}
 
-	public void updateSignature(Map<Integer, byte[]> IEs) {
-		if (isBelongTo(IEs)) return;
-		else this.IEs.add(IEs);
+
+	public SignatureForIE(Map<Integer, byte[]> IE) {
+		this.IEs.add(extractSignature(IE));
 	}
+
+
+
+	public static Map<Integer, byte[]> extractSignature(Map<Integer, byte[]> IE) {
+
+		Map<Integer, byte[]> element = new HashMap<>();
+		for (Map.Entry<Integer, byte[]> entry : IE.entrySet()) {
+			if (entry.getKey() == 0) {
+				//ignore ssid information
+				continue;
+			}
+
+			if (entry.getKey() == 221) {
+				//ignore vendor information
+				continue;
+			}
+			element.put(entry.getKey(), entry.getValue());
+		}
+		return element;
+	}
+
+
+
+
+	public void updateSignature(Map<Integer, byte[]> IEs) {
+		Map<Integer, byte[]> ie = extractSignature(IEs);
+		if (isBelongTo(ie)) return;
+		else this.IEs.add(ie);
+	}
+
+
 
 	/**
 	 * @param a 被比较的
 	 * @param b 签名中的IE
 	 * @return
 	 */
-	public boolean checkIE(Map<Integer, byte[]> a, Map<Integer, byte[]> b) {
+	private boolean checkIE(Map<Integer, byte[]> a, Map<Integer, byte[]> b) {
 		//比较IE中的每个元素，是否相等
 		Set<Integer> keys = a.keySet();
 		for (Integer key : keys) {
@@ -49,16 +79,13 @@ public class SignatureForIE {
 		return true;
 	}
 
-	/**
-	 * 仅比较所含IE种类是否相同
-	 * @param IEs
-	 * @return
-	 */
+
+
 	public boolean isBelongTo(Map<Integer, byte[]> IEs) {
 
 		for (Map<Integer, byte[]> IE : this.IEs) {
-
-			if (checkIE(IEs, IE)) {
+			//有相等的IE就返回true
+			if (checkIE(extractSignature(IEs), IE)) {
 				return true;
 			}
 
@@ -67,5 +94,9 @@ public class SignatureForIE {
 		return false;
 	}
 
-	
+
+
+
+
+
 }

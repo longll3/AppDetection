@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import DrawFigure.BarChart;
+import org.jfree.ui.RefineryUtilities;
 import structure.IEEE80211ManagementFrame;
 
 
@@ -150,7 +151,7 @@ public class IFAT {
 //		BarChart barChart1 = new BarChart("IFAT attack", "Samsung Galaxy S8 edge 帧间时间差统计", bin_set);
 		BarChart barChart1 = new BarChart("IFAT attack", title+"帧间时间差统计", bin_set);
 		barChart1.pack( );
-		RefineryUtilities.centerFrameOnScreen( barChart1 );  
+		RefineryUtilities.centerFrameOnScreen( barChart1 );
 		barChart1.setVisible( true ); 
 		
 //		System.out.println(timeDifferenceArray);

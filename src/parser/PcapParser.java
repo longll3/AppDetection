@@ -27,7 +27,7 @@ public class PcapParser {
 	private File pcap;
 //	private String savePath;
 
-	private PcapStruct struct;
+    private PcapStruct struct;
 	private ProtocolData protocolData;
 	private IPHeader ipHeader;
 	private TCPHeader tcpHeader;

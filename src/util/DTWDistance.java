@@ -1,12 +1,37 @@
 package util;
 
-public class DTWDistance{ 
+import sun.rmi.runtime.Log;
+
+import java.util.Map;
+
+public class DTWDistance{
 	private Long[] test;
 	private Double[] signature;
 	
 	private Double[][] distanceMatrix;
 	private Double[][] costMatrix;
-	
+
+
+	public static double haffumanDistance(Double[] sig, Double[] test) {
+		double dis = 0.0;
+
+		for (int i = 0; i < sig.length; i++) {
+			dis += Math.abs(sig[i]-test[i]);
+		}
+
+		return dis;
+	}
+
+	public static double haffumanDistance(Double[] sig, Long[] test) {
+		double dis = 0.0;
+
+		for (int i = 0; i < sig.length; i++) {
+			dis += Math.abs(sig[i]-test[i]);
+		}
+
+		return dis;
+	}
+
 	public DTWDistance(Double[] signature, Long[] test) {
 //		this.test = test;
 //		this.signature = signature;
@@ -25,7 +50,7 @@ public class DTWDistance{
 			System.err.println("signature or test is null");
 			return;
 		}
-		
+
 		this.test = test;
 		this.signature = signature;
 		//行对应signatu， 列对应test
@@ -58,7 +83,7 @@ public class DTWDistance{
 		return getAbsDiff(a, b);
 	}
 	
-	public Double getAbsDiff(Double a, Long b) {
+	public static Double getAbsDiff(Double a, Long b) {
 		if (a > b) return a - b;
 		else return b - a;
 	}

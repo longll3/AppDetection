@@ -26,7 +26,7 @@ public class ProcessByDTW {
 	private DTWDistance dtw;
 	
 	private IEEE80211Parser parser;
-	private String path = "/Users/longlong/Documents/周报/研一下学期/ifat实验/packets/";
+	private String path = "/Users/longlong/Documents/研究生工作/ifat实验/packets/";
 	
 	public ProcessByDTW() {
 		this.parser = new IEEE80211Parser();
@@ -97,7 +97,8 @@ public class ProcessByDTW {
 	}
 	
 	public void processOnMate9() throws IOException {
-		this.parser.setFile(new File(this.path+"mate9-1-503.pcap"));
+		this.parser.setFile(new File(this.path+"mate9-all.pcap"));
+//		this.parser.setFile(new File(this.path+"mate9-1-503.pcap"));
 		this.parser.parse();
 		
 		Set<ArrayList<Long>> burstSet = getBurstSetBySeqNum(this.parser.getTimeArray());
@@ -108,6 +109,7 @@ public class ProcessByDTW {
 	//要记录两个
 	public void processOnHonor10() throws IOException {
 		this.parser.setFile(new File(this.path+"honor10-2.pcap"));
+//		this.parser.setFile(new File(this.path+"honor10-2.pcap"));
 		this.parser.parse();
 		
 		Set<ArrayList<Long>> burstSet = getBurstSetByMAC(this.parser.getTimeArray());
@@ -126,9 +128,27 @@ public class ProcessByDTW {
 		
 		this.sigMap.put("pad", new SignatureForIFAT(burstSet));
 	}
-	
+
+
+	public void processOnHuaWei() throws IOException {
+		processOnHonor10();
+		processOnHWPad();
+		processOnMate7();
+		processOnMate9();
+	}
+
+
+	public void processOnApple() throws IOException {
+		processOniPhone("iphone7p/iphone7-1.pcap", "iphone7");
+		processOniPhone("iphon6s_1.pcap", "iphone6s");
+		processOnMac();
+		processOniPad();
+
+	}
+
 	public void processOniPhone(String filename, String device) throws IOException {
 		
+//		String filename = "iphone7_nowifi_probe_request.pcap";
 //		String filename = "iphone7_nowifi_probe_request.pcap";
 //		String filename = "iphon6s_1.pcap";
 		File file = new File(this.path+filename);
@@ -164,10 +184,10 @@ public class ProcessByDTW {
 	}
 	
 	public void calDisFromOtherOfMate7() throws IOException {
-//		String f1 = "mate71-203-1000.pcap";
+		String f1 = "mate71-203-1000.pcap";
 //		String f1 = "mate9-504-999.pcap";
 //		String f1 = "pad_no_in_list.pcap";
-		String f1 = "honor10-1.pcap";
+//		String f1 = "honor10-1.pcap";
 		
 		this.parser.setFile(new File(this.path+f1));
 		this.parser.parse();
@@ -178,7 +198,10 @@ public class ProcessByDTW {
 		int i=0;
 		Set<String> keys = this.sigMap.keySet();
 		Map<String, Integer> predicRate = new HashMap<>();
-		
+
+		double allMinDistance = Double.MAX_VALUE;
+		double allMaxDistance = Double.MIN_VALUE;
+
 		for (ArrayList<Long> burst: burstSet) {
 			Long[] burst_arr = burst.toArray(new Long[0]);
 			System.out.println("No"+i+". burst");
@@ -191,16 +214,21 @@ public class ProcessByDTW {
 //				for (int j = 0; j < sig.getBurstSizeDistribution().size(); j++) {
 					if (sig.getBurstSizeDistribution().containsKey(burst.size()) ) {
 						double distance = dtw.getDTWDistance(sig.getSig().get(burst.size()), burst_arr);
-						double realDistance = distance*(1-sig.getBurstSizeDistribution().get(burst.size())); 
+						double realDistance = distance*(1-sig.getBurstSizeDistribution().get(burst.size()));
+//						double haffmandistance = dtw.haffumanDistance(sig.getSig().get(burst.size()), burst_arr);
 						
 						if (minDistance > realDistance) {
+							if (allMinDistance > realDistance) {
+								allMinDistance = realDistance;
+							}
 							minDistance = realDistance;
 							predictionDevice = key;
 						}
 						
-						System.out.println("signature device:" + key+",burst size is:"+burst.size()+" distance is :"+distance);
-						
+//						System.out.println("signature device:" + key+",burst size is:"+burst.size()+" distance is :"+distance);
 						System.out.println("signature device:" + key+",burst size is:"+burst.size()+" real distance is :"+realDistance);
+//						System.out.println("signature device:" + key+",burst size is:"+burst.size()+" haffman distance is :"+ haffmandistance);
+
 						if (distance_list.containsKey(key)) {
 							distance_list.get(key).add(realDistance);
 						} else {
@@ -213,6 +241,11 @@ public class ProcessByDTW {
 			}
 			
 			System.out.println("belong to device " + predictionDevice);
+
+			if (minDistance > allMaxDistance) {
+				allMaxDistance = minDistance;
+			}
+
 			if (predicRate.containsKey(predictionDevice)) {
 				int temp = predicRate.get(predictionDevice);
 				predicRate.put(predictionDevice, temp+1);
@@ -226,7 +259,10 @@ public class ProcessByDTW {
 		for (String device: predicRate.keySet()) {
 			System.out.println("预测所属品牌为"+device+", 所占百分比为："+ (double)predicRate.get(device)/burstSet.size());
 		}
-		
+
+		System.out.println("最小距离为："+allMinDistance);
+		System.out.println("最大距离为："+allMaxDistance);
+
 		
 		
 //		printMeanAndMedium(distance_list.get("mate7").toArray(new Double[0]), "mate7 tp mate7");
@@ -244,8 +280,10 @@ public class ProcessByDTW {
 	}
 	
 	public void calDisFromOtherOfIphone7() throws IOException {
-		String f1 = "pad-all.pcap";
-		
+//		String f1 = "pad-all.pcap";
+		String f1 = "iphone7p/iphone7p-test-101frames.pcap";
+//		String f1 = "iphon6s_nowifi_IFAT.pcap";
+
 		this.parser.setFile(new File(this.path+f1));
 		this.parser.parse();
 		
@@ -269,16 +307,18 @@ public class ProcessByDTW {
 //				for (int j = 0; j < sig.getBurstSizeDistribution().size(); j++) {
 					if (sig.getBurstSizeDistribution().containsKey(burst.size()) ) {
 						double distance = dtw.getDTWDistance(sig.getSig().get(burst.size()), burst_arr);
-						double realDistance = distance*(1-sig.getBurstSizeDistribution().get(burst.size())); 
+//						double haffmandistance = dtw.haffumanDistance(sig.getSig().get(burst.size()), burst_arr);
+						double realDistance = distance*(1-sig.getBurstSizeDistribution().get(burst.size()));
 						
 						if (minDistance > realDistance) {
 							minDistance = realDistance;
 							predictionDevice = key;
 						}
 						
-						System.out.println("signature device:" + key+",burst size is:"+burst.size()+" distance is :"+distance);
-						
+//						System.out.println("signature device:" + key+",burst size is:"+burst.size()+" distance is :"+distance);
 						System.out.println("signature device:" + key+",burst size is:"+burst.size()+" real distance is :"+realDistance);
+//						System.out.println("signature device:" + key+",burst size is:"+burst.size()+" haffman distance is :"+ haffmandistance);
+
 						if (distance_list.containsKey(key)) {
 							distance_list.get(key).add(realDistance);
 						} else {
@@ -290,7 +330,7 @@ public class ProcessByDTW {
 //				}
 			}
 			
-			System.out.println("belong to device " + predictionDevice);
+//			System.out.println("belong to device " + predictionDevice);
 			if (predicRate.containsKey(predictionDevice)) {
 				int temp = predicRate.get(predictionDevice);
 				predicRate.put(predictionDevice, temp+1);
@@ -400,7 +440,7 @@ public class ProcessByDTW {
 		node.add(last);
 		for (int i = 1; i < list.size(); i++) {
 			IEEE80211ManagementFrame now = list.get(i);
-			if (now.getSeq_num() - last.getSeq_num() < 10 && now.getSeq_num() - last.getSeq_num() >= 0) {
+			if (now.getSeq_num() - last.getSeq_num() < 15 && now.getSeq_num() - last.getSeq_num() >= 0) {
 				//belongs to a same burst
 				node.add(now);
 			} else {
