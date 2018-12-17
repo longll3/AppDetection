@@ -50,6 +50,7 @@ public class SigForIE implements SigControl {
 						break;
 					}
 				}
+				//如果一个IE有多种取值的情况
 				if (flag == false) {
 					arr.add(ori);
 				}

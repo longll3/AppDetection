@@ -47,17 +47,14 @@ public class ProcessCombinedIFATAndIE implements Processor  {
                 System.out.println(device.getDeviceName()+": ");
                 ArrayList<ArrayList<IEEE80211ManagementFrame>> frameSet = new ArrayList<>();
                 Set<ArrayList<Double>> burstSet = SigForIFAT.getBurstSetBySeqNum(parser.getTimeArray(), frameSet);
-                for (ArrayList<Double> burst : burstSet) {
-                    ((SigForIFAT) sigIFAT).updateSig(burst);
-                }
+
+                sigIFAT = new SigForIFAT(burstSet);
 
 
                 for (IEEE80211ManagementFrame frame : parser.getTimeArray()) {
 //					sig.updateSignature(frame.getSequenceIEs());
                     sigIE.updateSignature(new FigureForIE(frame.getIEs(), frame.getIE()));
                 }
-
-
 
             }
             this.sigIE.put(device.getDeviceName(), sigIE);
@@ -107,7 +104,8 @@ public class ProcessCombinedIFATAndIE implements Processor  {
 
                 String brand = judgeForFrame(SignatureForIE.extractSignature(frameSet.get(index).get(0).getIEs()));
 
-                System.out.println("测试设备："+device.getDeviceName()+", 属于"+ brand);
+                System.out.print("测试设备："+device.getDeviceName()+", IE属于"+ brand);
+                System.out.println(", IFAT属于"+ result + "\n");
                 index ++;
 
             }

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import parser.IEEE80211Parser;
 import parser.PcapFileParser;
+import process.ProcessCombinedIFATAndIE;
 import process.ifat.ProcessByDTW;
 import process.identifyStation.StationIdentify;
 import process.ifat.Processor;
@@ -26,21 +27,23 @@ public class APP {
 	
 	public static void testProcessorByDTW() throws IOException {
 		
-		ProcessByDTW processorByDTW = new ProcessByDTW();
-		processorByDTW.processOnHuaWei();
-//		processor.processOniPhone("iphone7_nowifi_probe_request.pcap", "iphone7");
-//		processorByDTW.processOnApple();
-		processorByDTW.calDisFromOtherOfMate7();
-//		processorByDTW.calDisFromOtherOfIphone7();
+//		ProcessByDTW processorByDTW = new ProcessByDTW();
+//		processorByDTW.processOnHuaWei();
+////		processor.processOniPhone("iphone7_nowifi_probe_request.pcap", "iphone7");
+////		processorByDTW.processOnApple();
+//		processorByDTW.calDisFromOtherOfMate7();
+////		processorByDTW.calDisFromOtherOfIphone7();
 
+		ProcessCombinedIFATAndIE process = new ProcessCombinedIFATAndIE();
+		process.generatesSignature();
+		process.process();
 
-
-		process.ifat.Processor processor = new Processor();
-		processor.generatesSigs();
-
-		System.out.println("签名构建完毕");
-
-		processor.calDisFromOther();
+//		process.ifat.Processor processor = new Processor();
+//		processor.generatesSigs();
+//
+//		System.out.println("签名构建完毕");
+//
+//		processor.calDisFromOther();
 	}
 	
 

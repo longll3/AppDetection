@@ -31,13 +31,13 @@ public class BrandIdentify {
 		//苹果系列
 //		"mate9-all.pcap", "mate71-1-202.pcap"};
 //		String fileNames[] = new String[]{"iphone7p/iphone7-nowifi-to-withwifi.pcap"};
-		String fileNames[] = new String[]{"iphon6s_nowifi_IFAT.pcap", "iphone7p/iphone7p-test-101frames.pcap",
-								"sam-mac-test-1-150.pcap", "lll-mac-test-1-150.pcap", "ipad-test-1-150.pcap"};
+//		String fileNames[] = new String[]{"iphon6s_nowifi_IFAT.pcap", "iphone7p/iphone7p-test-101frames.pcap",
+//								"sam-mac-test-1-150.pcap", "lll-mac-test-1-150.pcap", "ipad-test-1-150.pcap"};
 
 		//华为系列
 //		String fileNames[] = new String[]{"mate71-1-202.pcap","mate72-size1000-1-208.pcap"};
-//		String fileNames[] = new String[]{"mate9-201-503.pcap", "honor10-2-test-1-200.pcap",
-//				"mate71-1-202.pcap","mate72-size1000-1-208.pcap"};
+		String fileNames[] = new String[]{"mate9-201-503.pcap", "honor10-2-test-1-200.pcap",
+				"mate71-1-202.pcap","mate72-size1000-1-208.pcap"};
 		for (String fileName : fileNames) {
 			brandIdentify.frameNun = 0;
 			brandIdentify.parser.setFile(new File(path+fileName));
@@ -112,6 +112,7 @@ public class BrandIdentify {
 //			SignatureForIE signature = this.sigs.get(brand);
 			SigControl signature = this.sigs.get(brand);
 			if (signature.isBelongToTheType(new FigureForIE(IEs, null))) {
+//			if (signature.isBelongTo(IEs)) {
 				return brand;
 			}
 		}
@@ -128,6 +129,7 @@ public class BrandIdentify {
 //			SignatureForIE signature = this.sigs.get(brand);
 			SigControl signature = this.sigs.get(brand);
 			if (signature.isBelongToTheType(new FigureForIE(IEs, null))) {
+//			if (signature.isBelongTo(IEs)) {
 				return brand;
 			}
 		}
