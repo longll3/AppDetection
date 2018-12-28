@@ -3,7 +3,6 @@ package longll;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import structure.IEEE80211ManagementFrame;
 
@@ -32,7 +31,7 @@ public class IFATBurst {
 		IEEE80211ManagementFrame last = packet_seq.get(0);
 		for (int i = 1; i < packet_seq.size(); i++) {
 			IEEE80211ManagementFrame now = packet_seq.get(i);
-			long diff = now.getTimestamp() - last.getTimestamp();
+			long diff = now.getMacTimestamp() - last.getMacTimestamp();
 			int count = now.getSeq_num() - last.getSeq_num();
 			
 			if (count != 1 && count > 0) {

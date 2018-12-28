@@ -5,9 +5,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class IEEE80211ManagementFrame {
-	private long timestamp;
+	private long macTimestamp; //radiotap header中的时间戳
+	private int timestamp; //pcap头中的时间戳
 	private String sr_mac;
 	private String dst_mac;
+	private int frame_len;
 	
 	private int seq_num; //probe reqquest帧序列号
 	private ArrayList<Integer> IE; //probe request帧的信息元素的编码
@@ -31,21 +33,38 @@ public class IEEE80211ManagementFrame {
 		IEs = iEs;
 	}
 
-	public IEEE80211ManagementFrame(long timestamp, String sr_mac, String dst_mac, int seq_num, Map<Integer, byte[]> IEs, ArrayList<Integer> IE, LinkedHashMap<Integer, byte[]> sequenceIEs) {
+	public IEEE80211ManagementFrame(long macTimestamp, String sr_mac, String dst_mac, int seq_num, Map<Integer, byte[]> IEs, ArrayList<Integer> IE, LinkedHashMap<Integer, byte[]> sequenceIEs, int length, int timestamp) {
 		super();
-		this.timestamp = timestamp;
+		this.macTimestamp = macTimestamp;
 		this.sr_mac = sr_mac;
 		this.dst_mac = dst_mac;
 		this.seq_num = seq_num;
 		this.IEs = IEs;
 		this.IE = IE;
 		this.sequenceIEs = sequenceIEs;
+		this.timestamp = timestamp;
+
+		byte ssid[] = IEs.get(0);
+		if (ssid.length == 0) {
+			this.frame_len = length;
+		} else {
+			this.frame_len = length - ssid.length;
+		}
 	}
-	public long getTimestamp() {
+
+	public int getTimestamp() {
 		return timestamp;
 	}
-	public void setTimestamp(long timestamp) {
+
+	public void setTimestamp(int timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	public long getMacTimestamp() {
+		return macTimestamp;
+	}
+	public void setMacTimestamp(long macTimestamp) {
+		this.macTimestamp = macTimestamp;
 	}
 	public String getSr_mac() {
 		return sr_mac;
@@ -65,5 +84,12 @@ public class IEEE80211ManagementFrame {
 	public void setIE(ArrayList<Integer> iE) {
 		IE = iE;
 	}
-	
+
+	public int getFrame_len() {
+		return frame_len;
+	}
+
+	public void setFrame_len(int frame_len) {
+		this.frame_len = frame_len;
+	}
 }

@@ -208,7 +208,7 @@ public class SigForIFAT implements SigControl {
                 if (((now.getSeq_num() - last.getSeq_num() < 15 && now.getSeq_num() - last.getSeq_num() >= 0) ||
                      (now.getSeq_num() < last.getSeq_num() && 4096 - last.getSeq_num() < 15))
 
-                     && now.getTimestamp() - last.getTimestamp() < TIME_DIFF_BETWEEN_BURST) {
+                     && now.getMacTimestamp() - last.getMacTimestamp() < TIME_DIFF_BETWEEN_BURST) {
                     //belongs to a same burst
                     node.add(now);
 
@@ -273,7 +273,7 @@ public class SigForIFAT implements SigControl {
                 if (((now.getSeq_num() - last.getSeq_num() < 15 && now.getSeq_num() - last.getSeq_num() >= 0) ||
                         (now.getSeq_num() < last.getSeq_num() && 4096 - last.getSeq_num() < 15))
 
-                        && now.getTimestamp() - last.getTimestamp() < TIME_DIFF_BETWEEN_BURST) {
+                        && now.getMacTimestamp() - last.getMacTimestamp() < TIME_DIFF_BETWEEN_BURST) {
                     //belongs to a same burst
                     node.add(now);
 
@@ -335,7 +335,7 @@ public class SigForIFAT implements SigControl {
         //将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
         for (int i = 1; i < item.size(); i++) {
             IEEE80211ManagementFrame nowFrame = item.get(i);
-            long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+            long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 
             if (diff > 300000) {
                 System.err.println(lastFrame.getSeq_num());

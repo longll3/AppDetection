@@ -2,7 +2,6 @@ package process.identifyStation;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,9 +27,10 @@ public class StationIdentify {
 	private Map<Integer, StationInfoOfIFAT> stationMapOfIFAT;
 	
 	private final static int MaxSeqNum = 4095;
-	private final static int SeqNumMaxDiff = 600;
+	private final static int SeqNumMaxDiff = 100;
+//	private final static int SeqNumMaxDiff = 600;
 	private final static int HTCapabilitiesID = 45;
-	
+	private final static int ProcessTimeDiff = 10000000; //每次处理超过1秒间隔的帧。
 	
 	//用于区分终端所需要用到的信息,通过序列号和IE等信息
 	//2018.12.12 增加timestamp
@@ -40,6 +40,7 @@ public class StationIdentify {
 		private String lastMAC;
 
 		private boolean hasRealMAC;
+		private int frame_len; //帧在ssid为空时的长度。
 
 		//add by longll on 12.12.2018
 		private long lastTimestamp;
@@ -53,6 +54,7 @@ public class StationIdentify {
 			lastMAC = "";
 			IEs = new HashMap<>();
 			hasRealMAC = false;
+			frame_len = 0;
 		}
 
 		public boolean isHasRealMAC() {
@@ -61,6 +63,14 @@ public class StationIdentify {
 
 		public void setHasRealMAC(boolean hasRealMAC) {
 			this.hasRealMAC = hasRealMAC;
+		}
+
+		public int getFrame_len() {
+			return frame_len;
+		}
+
+		public void setFrame_len(int frame_len) {
+			this.frame_len = frame_len;
 		}
 
 		public void setLastSeq(int seq) { this.lastSeq = seq; }
@@ -78,8 +88,8 @@ public class StationIdentify {
 		public String getLastMAC() { return this.lastMAC; }
 		
 		public void updateIEType(ArrayList<Integer> IEList) {
-//			this.IEType = IEList;
-			this.IEType = StationIdentify.extractIE(IEList);
+			this.IEType = IEList;
+//			this.IEType = StationIdentify.extractIE(IEList);
 		}
 		
 //		public Set<ArrayList<Integer>> getIEs() { return this.IEs; }
@@ -94,7 +104,8 @@ public class StationIdentify {
 			this.setLastSeq(frame.getSeq_num());
 			this.updateIEType(frame.getIE());
 			this.setIEs(frame.getIEs());
-			this.setLastTimestamp(frame.getTimestamp());
+			this.setLastTimestamp(frame.getMacTimestamp());
+			this.setFrame_len(frame.getFrame_len());
 		}
 		
 		@Override
@@ -109,7 +120,7 @@ public class StationIdentify {
 		
 	}
 	
-	
+	//2018。12。25 新增的分组 类，一组即为一个
 	
 	//用于区分终端所需要用到的信息,加入了IFAT签名
 	//序列号，MAC地址集合，IFAT签名
@@ -124,7 +135,7 @@ public class StationIdentify {
 		public StationInfoOfIFAT(ArrayList<IEEE80211ManagementFrame> burst) {
 			ArrayList<Long> frameArr = new ArrayList<>();
 			for (int i = 1; i < burst.size(); i++) {
-				frameArr.add(burst.get(i).getTimestamp()-burst.get(i-1).getTimestamp());
+				frameArr.add(burst.get(i).getMacTimestamp()-burst.get(i-1).getMacTimestamp());
 			}
 			//将burst中的最后一帧的序列号set为lastSeq，为了跟下一个设备可以用帧号进行协助判断
 			setLastSeq(burst.get(burst.size()).getSeq_num());
@@ -166,12 +177,22 @@ public class StationIdentify {
 	
 	public void process(String filename) throws IOException {
 		this.parser.setFile(new File(filename));
-		this.parser.parse();
 		this.parser.openInfoElementsFlag();
+		this.parser.parse();
 		
 		this.parser.printIE();
-		
+
+//		int startTime = 0;
+//		int nowTime = 0;
+//
+//		startTime = this.parser.getTimeArray().get(0).getTimestamp();
+
+
+
+
+
 		for (IEEE80211ManagementFrame frame: this.parser.getTimeArray()) {
+			System.out.println(frame.getTimestamp());
 //			judgeBySeqAndIETypeAndTimestamp(frame);
 			judgeBySeqAndIEType(frame);
 //			judgeBySeqAndHTCapInfo(frame);
@@ -204,8 +225,8 @@ public class StationIdentify {
 		DTWDistance dtw = new DTWDistance();
 		Long[] burst_arr = new Long[burst.size()];
 		
-		Long lastFrame_timestamp = burst.get(0).getTimestamp();
-		for (int i = 0; i < burst.size(); i++) burst_arr[i] = burst.get(i+1).getTimestamp() - lastFrame_timestamp;
+		Long lastFrame_timestamp = burst.get(0).getMacTimestamp();
+		for (int i = 0; i < burst.size(); i++) burst_arr[i] = burst.get(i+1).getMacTimestamp() - lastFrame_timestamp;
 		
 		//找到距离最小的。
 		int index = 0; //标记归类的是那个终端
@@ -254,8 +275,8 @@ public class StationIdentify {
 	public void judgeBySeqAndIEType(IEEE80211ManagementFrame frame) {
 		int seq = frame.getSeq_num();
 		String srcMAC = frame.getSr_mac();
-		ArrayList<Integer> IE = StationIdentify.extractIE(frame.getIE());
-//		ArrayList<Integer> IE = frame.getIE();
+//		ArrayList<Integer> IE = StationIdentify.extractIE(frame.getIE());
+		ArrayList<Integer> IE = frame.getIE();
 
 		int stationSize = this.stationMap.size();
 		if (stationSize == 0) {
@@ -268,59 +289,59 @@ public class StationIdentify {
 			boolean match = matchMAC(frame);
 			if (match) return;
 			int index = 0; // 保存匹配正确的stationInfo的索引
-			else {
-				//再遍历已经收集到的终端，寻找IE总类一样的且序列号匹配的
-				for (int i = 1; i <= stationSize; i++) {
-					if (match) break;
-					
+
+			//再遍历已经收集到的终端，寻找IE总类一样的且序列号匹配的
+			for (int i = 1; i <= stationSize; i++) {
+				if (match) break;
+
 //					Set<Integer> stationMapIEs = stationMap.get(i).IEs.keySet();
 //					ArrayList<Integer> ie = new ArrayList<>(stationMapIEs);
-						
-					if (IE.equals(stationMap.get(i).IEType)) {
-						if (seq > stationMap.get(i).getLastSeq() && seq - stationMap.get(i).getLastSeq() < 100) {
-//						if (matchSeqNum(stationMap.get(i).getLastSeq(), seq)) {
-							//MAC地址不一样时，首先比较sequence number的大小，若小于上一个的大小，则为另一个终端，或者相差超过40的，则也为另一个终端
-							//但是有一个问题，就是有些设备的序列号不会递增到4096才重置，如mate7（是另一个设备，具体是哪一个，还得去看一下），其序列号的范围则只在30以内（大概），这个问题应该怎么解决呢？
 
-							index = i;
+//				if (IE.equals(stationMap.get(i).IEType)) {
+				if (IE.equals(stationMap.get(i).IEType) && frame.getFrame_len() == stationMap.get(i).getFrame_len()) {
+//					if (seq > stationMap.get(i).getLastSeq() && seq - stationMap.get(i).getLastSeq() < 150 && seq - stationMap.get(i).getLastSeq() > 10&& seq - stationMap.get(i).getLastSeq() > 10) {
+//					if (seq > stationMap.get(i).getLastSeq() && seq - stationMap.get(i).getLastSeq() < 600) {
+					if (matchSeqNum(stationMap.get(i).getLastSeq(), seq)) {
+						//MAC地址不一样时，首先比较sequence number的大小，若小于上一个的大小，则为另一个终端，或者相差超过40的，则也为另一个终端
+						//但是有一个问题，就是有些设备的序列号不会递增到4096才重置，如mate7（是另一个设备，具体是哪一个，还得去看一下），其序列号的范围则只在30以内（大概），这个问题应该怎么解决呢？
+
+						index = i;
 //							this.stationMap.get(i).addFrame(frame);
-							match = true;
-						} else if ((4096 - stationMap.get(i).getLastSeq()) < 100 && seq < 100) {
-							//序列号为[0-4095]，这是序列号重新开始的情况
+						match = true;
+					/*} else if ((4096 - stationMap.get(i).getLastSeq()) < 100 && seq < 100) {
+						//序列号为[0-4095]，这是序列号重新开始的情况
 
-							index = i;
+						index = i;
 
 //							this.stationMap.get(i).addFrame(frame);
-							match = true;
-							
-						} 
-					}	
-					
-				}
-				
-				if (match) {
-					if (ifRandomMac(frame.getSr_mac())) {
-						this.stationMap.get(index).addFrame(frame);
-					} else {
-						//该帧为真实MAC地址
-						if (!this.stationMap.get(index).isHasRealMAC()) {
-							//且还没有真实MAC地址
-							this.stationMap.get(index).addFrame(frame);
-						} else {
-							StationInfo station = new StationInfo();
-							station.addFrame(frame);
-							this.stationMap.put(stationSize+1, station);
-						}
+						match = true;*/
+
 					}
-
-				} else {
-					StationInfo station = new StationInfo();
-					station.addFrame(frame);
-					this.stationMap.put(stationSize+1, station);
 				}
 
 			}
-			
+
+			if (match) {
+				if (ifRandomMac(frame.getSr_mac())) {
+					this.stationMap.get(index).addFrame(frame);
+				} else {
+					//该帧为真实MAC地址
+					if (!this.stationMap.get(index).isHasRealMAC()) {
+						//且还没有真实MAC地址
+						this.stationMap.get(index).addFrame(frame);
+					} else {
+						StationInfo station = new StationInfo();
+						station.addFrame(frame);
+						this.stationMap.put(stationSize+1, station);
+					}
+				}
+
+			} else {
+				StationInfo station = new StationInfo();
+				station.addFrame(frame);
+				this.stationMap.put(stationSize+1, station);
+			}
+
 			
 		}
 		
@@ -334,7 +355,7 @@ public class StationIdentify {
 	 * @return true if mac is a random mac address.
 	 */
 	public boolean ifRandomMac(String mac) {
-		Character c = mac.charAt(2);
+		Character c = mac.charAt(1);
 		return (c == '2' || c == '6' || c == 'A' || c == 'E');
 	}
 		
@@ -351,7 +372,7 @@ public class StationIdentify {
 	public void judgeBySeqAndIETypeAndTimestamp(IEEE80211ManagementFrame frame) {
 		int seq = frame.getSeq_num();
 		String srcMac = frame.getSr_mac();
-		long timestamp = frame.getTimestamp();
+		long timestamp = frame.getMacTimestamp();
 		ArrayList<Integer> IEs = frame.getIE();
 
 		int stationSize = stationMap.size();
@@ -540,7 +561,8 @@ public class StationIdentify {
 //		identify.process("/Users/longlong/master_work/学校内的研究工作/AppDetection&IFATexperience/test_data/"+"packet1.pcap");
 //		identify.process("/Users/longlong/Documents/研究生工作/ifat实验/packets/"+"honor10-2.pcap");
 //		identify.process("/Users/longlong/Documents/研究生工作/ifat实验/packets/"+"honor10_all.pcap");
-		identify.process("/Users/longlong/Documents/研究生工作/终端追踪实验/packets/"+"iphone7p-connect-to-wifi-pure-pr-2.pcap");
+		identify.process("/Users/longlong/Documents/研究生工作/终端追踪实验/packets/"+"five-apples-exp-2-pure-pr.pcap");
+//		identify.process("/Users/longlong/Documents/研究生工作/终端追踪实验/packets/"+"iphone7p-connect-to-wifi-pure-pr-2.pcap");
 //		identify.process("/Users/longlong/Documents/研究生工作/终端追踪实验/"+"2018-12-14-a207.pcap");
 //		identify.process("/Users/longlong/Documents/研究生工作/终端追踪实验/"+"2018-12-14-a207-only-randomMAC.pcap");
 		identify.print();

@@ -14,7 +14,6 @@ import org.jfree.ui.RefineryUtilities;
 import DrawFigure.BarChart;
 import parser.IEEE80211Parser;
 import structure.IEEE80211ManagementFrame;
-import util.DTWDistance;
 import util.DataUtils;
 import util.StatisticUtil;
 /**
@@ -152,7 +151,7 @@ public class Processor {
 			//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
 			for (int i = 1; i < item.size(); i++) {
 				IEEE80211ManagementFrame nowFrame = item.get(i);
-				long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+				long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 				if (nowFrame.getSeq_num() - lastFrame.getSeq_num() > 1) {
 					int num = nowFrame.getSeq_num() - lastFrame.getSeq_num();
 					for (int j = 0; j < num; j++) {
@@ -241,7 +240,7 @@ public class Processor {
 			IEEE80211ManagementFrame lastFrame = burst_list.get(0);
 			for (int j = 1; j < burst_list.size(); j++) {
 				IEEE80211ManagementFrame nowFrame = burst_list.get(j);
-				long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+				long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 				if (nowFrame.getSeq_num() - lastFrame.getSeq_num() > 1) {
 					int num = nowFrame.getSeq_num() - lastFrame.getSeq_num();
 					for (int k = 0; k < num; k++) {
@@ -434,7 +433,7 @@ public class Processor {
 			//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
 			for (int i = 1; i < item.size(); i++) {
 				IEEE80211ManagementFrame nowFrame = item.get(i);
-				long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+				long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 				if (nowFrame.getSeq_num() - lastFrame.getSeq_num() > 1) {
 					int num = nowFrame.getSeq_num() - lastFrame.getSeq_num();
 					for (int j = 0; j < num; j++) {
@@ -506,7 +505,7 @@ public class Processor {
 			//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
 			for (int i = 1; i < item.size(); i++) {
 				IEEE80211ManagementFrame nowFrame = item.get(i);
-				long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+				long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 				if (nowFrame.getSeq_num() - lastFrame.getSeq_num() > 1) {
 					int num = nowFrame.getSeq_num() - lastFrame.getSeq_num();
 					for (int j = 0; j < num; j++) {
@@ -618,7 +617,7 @@ public class Processor {
 			//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
 			for (int i = 1; i < item.size(); i++) {
 				IEEE80211ManagementFrame nowFrame = item.get(i);
-				long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+				long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 				if (nowFrame.getSeq_num() - lastFrame.getSeq_num() > 1) {
 					int num = nowFrame.getSeq_num() - lastFrame.getSeq_num();
 					for (int j = 0; j < num; j++) {
@@ -690,7 +689,7 @@ public class Processor {
 			//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
 			for (int i = 1; i < item.size(); i++) {
 				IEEE80211ManagementFrame nowFrame = item.get(i);
-				long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+				long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 				if (nowFrame.getSeq_num() - lastFrame.getSeq_num() > 1) {
 					int num = nowFrame.getSeq_num() - lastFrame.getSeq_num();
 					for (int j = 0; j < num; j++) {
@@ -791,7 +790,7 @@ public class Processor {
 			//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
 			for (int i = 1; i < item.size(); i++) {
 				IEEE80211ManagementFrame nowFrame = item.get(i);
-				long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+				long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 				if (nowFrame.getSeq_num() - lastFrame.getSeq_num() > 1) {
 					int num = nowFrame.getSeq_num() - lastFrame.getSeq_num();
 					for (int j = 0; j < num; j++) {
@@ -891,7 +890,7 @@ public class Processor {
   			//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
   			for (int i = 1; i < item.size(); i++) {
   				IEEE80211ManagementFrame nowFrame = item.get(i);
-  				long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+  				long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
   				if (nowFrame.getSeq_num() - lastFrame.getSeq_num() > 1) {
   					int num = nowFrame.getSeq_num() - lastFrame.getSeq_num();
   					for (int j = 0; j < num; j++) {
@@ -992,7 +991,7 @@ public class Processor {
 			//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
 			for (int i = 1; i < item.size(); i++) {
 				IEEE80211ManagementFrame nowFrame = item.get(i);
-				long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+				long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 				if (nowFrame.getSeq_num() - lastFrame.getSeq_num() > 1) {
 					int num = nowFrame.getSeq_num() - lastFrame.getSeq_num();
 					for (int j = 0; j < num; j++) {
@@ -1092,7 +1091,7 @@ public class Processor {
   			//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
   			for (int i = 1; i < item.size(); i++) {
   				IEEE80211ManagementFrame nowFrame = item.get(i);
-  				long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+  				long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
   				if (nowFrame.getSeq_num() - lastFrame.getSeq_num() > 1) {
   					int num = nowFrame.getSeq_num() - lastFrame.getSeq_num();
   					for (int j = 0; j < num; j++) {
@@ -1448,7 +1447,7 @@ public class Processor {
 		//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
 		for (int i = 1; i < item.size(); i++) {
 			IEEE80211ManagementFrame nowFrame = item.get(i);
-			long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+			long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 			
 			if (diff > 300000) System.out.println(lastFrame.getSeq_num());
 			

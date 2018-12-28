@@ -5,7 +5,6 @@ import structure.PcapDataHeader;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,12 +22,12 @@ public class ParserTest {
         ArrayList<IEEE80211ManagementFrame> timestamps = parser.getTimeArray();
         List<PcapDataHeader> dataHeaders = parser.getPcapStruct().getDataHeaders();
 
-        Long lastTimeFrame = timestamps.get(0).getTimestamp();
+        Long lastTimeFrame = timestamps.get(0).getMacTimestamp();
         Long lastTimePcapHeader = (long) dataHeaders.get(0).getTimeS()*1000000+dataHeaders.get(0).getTimeMs();
 
         for (int i = 1; i < timestamps.size(); i++) {
-            timeDiffForFrame.add(timestamps.get(i).getTimestamp()-lastTimeFrame);
-            lastTimeFrame = timestamps.get(i).getTimestamp();
+            timeDiffForFrame.add(timestamps.get(i).getMacTimestamp()-lastTimeFrame);
+            lastTimeFrame = timestamps.get(i).getMacTimestamp();
 
             Long current = (long) dataHeaders.get(i).getTimeS()*1000000+dataHeaders.get(i).getTimeMs();
             timeDiffForPcapHeader.add(current-lastTimePcapHeader);

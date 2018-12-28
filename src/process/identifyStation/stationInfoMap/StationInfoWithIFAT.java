@@ -27,7 +27,7 @@ public class StationInfoWithIFAT {
 		
 		ArrayList<Long> frameArr = new ArrayList<>();
 		for (int i = 1; i < burst.size(); i++) {
-			frameArr.add(burst.get(i).getTimestamp()-burst.get(i-1).getTimestamp());
+			frameArr.add(burst.get(i).getMacTimestamp()-burst.get(i-1).getMacTimestamp());
 		}
 		//将burst中的最后一帧的序列号set为lastSeq  ？？？？为什么要这样呢？？？？
 		setLastSeq(burst.get(burst.size()-1).getSeq_num());

@@ -357,7 +357,7 @@ public class ProcessByDTW {
 		//将burst中的丢帧部分的IFAT补齐 到new_time_diff_list中
 		for (int i = 1; i < item.size(); i++) {
 			IEEE80211ManagementFrame nowFrame = item.get(i);
-			long diff = nowFrame.getTimestamp()-lastFrame.getTimestamp();
+			long diff = nowFrame.getMacTimestamp()-lastFrame.getMacTimestamp();
 			
 			if (diff > 300000) System.out.println(lastFrame.getSeq_num());
 			

@@ -45,7 +45,7 @@ public class IFAT {
 			
 //			System.out.print("["+(i+1)+"-"+(i+2)+"]: ");
 			
-			Long difference = timeArray.get(i).getTimestamp() -timeArray.get(i-1).getTimestamp();
+			Long difference = timeArray.get(i).getMacTimestamp() -timeArray.get(i-1).getMacTimestamp();
 			
 			
 			
@@ -112,7 +112,7 @@ public class IFAT {
 				continue;
 			}
 			
-			long difference = timeArray.get(i).getTimestamp() - timeArray.get(i-1).getTimestamp();
+			long difference = timeArray.get(i).getMacTimestamp() - timeArray.get(i-1).getMacTimestamp();
 			System.out.println("No." + i + " and the difference is :" + difference);
 			
 			int previous_seq_num = timeArray.get(i).getSeq_num();

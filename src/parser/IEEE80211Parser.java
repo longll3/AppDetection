@@ -38,6 +38,7 @@ public class IEEE80211Parser {
 	
 	private final static int fileHeaderLength = 24;
 	private final static int pcapDataHeaderLength = 16;
+	private static int startTimeSecond;
 	
 	public IEEE80211Parser() {
 		super();
@@ -94,7 +95,8 @@ public class IEEE80211Parser {
 
 					m = fis.read(content);
 					
-					boolean isDone = parseContent(content);
+					boolean isDone = parseContent(content, (dataHeader.getTimeS()-startTimeSecond)*1000000+dataHeader.getTimeMs());
+
 					if (isDone) {
 						break;
 					} else {
@@ -209,6 +211,10 @@ public class IEEE80211Parser {
         int timeS = DataUtils.byteArrayToInt(buff_4);
         dataHeader.setTimeS(timeS);
 
+        if (startTimeSecond == 0) {
+        	startTimeSecond = timeS;
+		}
+
 
         for (int i = 0; i < 4; i ++) {
             buff_4[i] = data_header[i + offset];
@@ -253,8 +259,10 @@ public class IEEE80211Parser {
 	/**
 	 * 解析真正的数据（不包括pcap头）
 	 */
-	private boolean parseContent(byte[] content) {
-		
+	private boolean parseContent(byte[] content, int timestamp) {
+
+//		System.out.println(timestamp);
+
 		RadioTapHeader radioTapHeader = new RadioTapHeader();
 		
 		int offset = 0;
@@ -282,7 +290,7 @@ public class IEEE80211Parser {
 		}
 		
 		//获取时间戳TFS
-		long timestamp = DataUtils.byteArrayToLong(buff_8);
+		long macTimestamp = DataUtils.byteArrayToLong(buff_8);
 		
 		offset = radiotap_length + 4; //第5个字节开始是destination address
 		String dst_mac = DataUtils.byteArray2HexString(content, offset, offset+6);
@@ -311,9 +319,10 @@ public class IEEE80211Parser {
 			this.HTSet.put(IEArray, DataUtils.byte2HexStr(IEs.get(45), 0, 2));
 		}
 		
-		timeArray.add(new IEEE80211ManagementFrame(timestamp, sr_mac, dst_mac, seq_num, IEs, IEArray, sequenceIE));
-//		System.out.println(timestamp);
-		
+		timeArray.add(new IEEE80211ManagementFrame(macTimestamp, sr_mac, dst_mac, seq_num, IEs, IEArray, sequenceIE, (content.length-radiotap_length), timestamp));
+//		System.out.println(macTimestamp);
+
+		//用于统计整个文件的IE种类的信息
 		if (this.flag) {
 		
 			if (this.IE.containsKey(IEArray)) this.IE.put(IEArray, this.IE.get(IEArray)+1);
@@ -372,7 +381,7 @@ public class IEEE80211Parser {
 	}
 	
 	public void printIE() throws IOException {
-		this.parse();
+//		this.parse();
 		
 		System.out.println("设备"+this.pcapFile.getName()+"\n"+"所有的IE的种类为"+this.IE.size());
 		Set<ArrayList<Integer>> keys = this.IE.keySet();

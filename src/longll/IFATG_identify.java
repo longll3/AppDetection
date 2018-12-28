@@ -75,7 +75,7 @@ public class IFATG_identify {
 		for (int i = 1; i < packet_seq.size(); i++) {
 			if (packet_seq.get(i).getSeq_num() == packet_seq.get(lastIndex).getSeq_num() + 1) {
 				//consecutive frames
-				long timeDifference = packet_seq.get(i).getTimestamp() - packet_seq.get(lastIndex).getTimestamp();
+				long timeDifference = packet_seq.get(i).getMacTimestamp() - packet_seq.get(lastIndex).getMacTimestamp();
 				long key = timeDifference/BIN_SIZE;
 				if (!bin_set.containsKey(key)) {
 					//not in the bin set
