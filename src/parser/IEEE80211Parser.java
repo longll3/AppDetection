@@ -282,8 +282,7 @@ public class IEEE80211Parser {
 			//hetao phone
 			offset = 16;
 		}
-//		offset = 8;
-//		offset = 16; //hetao phone
+
 		byte[] buff_8 = new byte[8];
 		for(int i = 0, j = 7; i < 8; i++, j--) {
 			buff_8[i] = content[offset+j];

@@ -11,7 +11,7 @@ public class StationTrack {
 
     private final static int MaxTimeDiff = 1000000; //每次处理超过1秒间隔的帧。
     private final static int MaxSeqNum = 4095;
-    private final static int SeqNumMaxDiff = 100;
+    private final static int SeqNumMaxDiff = 300;
     //	private final static int SeqNumMaxDiff = 600;
 
     private int no = 0;
@@ -108,7 +108,7 @@ public class StationTrack {
         System.out.println("总共检测到的设备有"+stationSize);
 
         for (int i = 0; i < stationSize; i++) {
-            System.out.println(stationList.get(i).toString());
+            System.out.print(stationList.get(i).toString());
         }
     }
 
@@ -191,6 +191,11 @@ public class StationTrack {
     //return true if it belongs to a new station
     public boolean associateToStaion (Burst burst) {
 
+        //去除永鑫的特殊情况
+        if (burst.frameLength == 121 && burst.IEType.size() == 9) {
+            return false;
+        }
+
         boolean match = false;
         int index = -1;
         for (int i = 0; i < stationSize; i++) {
@@ -207,9 +212,15 @@ public class StationTrack {
                     //MAC地址不一样时，首先比较sequence number的大小，若小于上一个的大小，则为另一个终端，或者相差超过40的，则也为另一个终端
                     //但是有一个问题，就是有些设备的序列号不会递增到4096才重置，如mate7（是另一个设备，具体是哪一个，还得去看一下），其序列号的范围则只在30以内（大概），这个问题应该怎么解决呢？
 
-                    index = i;
+
+                    //每组间的间隔时间也不能太短
+                    if (burst.startTimestamp - station.lastTimestamp > 200000) {
+                        index = i;
 //							this.stationMap.get(i).addFrame(frame);
-                    match = true;
+                        match = true;
+
+                    }
+
 
 
                 }
@@ -288,7 +299,11 @@ public class StationTrack {
 //		track.process("/Users/longlong/master_work/学校内的研究工作/AppDetection&IFATexperience/test_data/"+"packet1.pcap");
 //		track.process("/Users/longlong/Documents/研究生工作/ifat实验/packets/"+"honor10-2.pcap");
 //		track.process("/Users/longlong/Documents/研究生工作/ifat实验/packets/"+"honor10_all.pcap");
-        track.process("/Users/longlong/Documents/研究生工作/终端追踪实验/packets/"+"five-apples-exp-2-pure-pr.pcap");
+        track.process("/Users/longlong/Documents/研究生工作/ifat实验/packets/"+"honor10-2-test-1-200.pcap");
+//        track.process("/Users/longlong/Documents/研究生工作/终端追踪实验/packets/"+"five-apples-exp-2-pure-pr.pcap");
+//        track.process("/Users/longlong/Documents/研究生工作/终端追踪实验/packets/"+"five-apples-exp-1-pure-complete.pcap");
+//        track.process("/Users/longlong/Documents/研究生工作/终端追踪实验/packets/"+"five-apples-exp-3-pure.pcap");
+//        track.process("/Users/longlong/Documents/研究生工作/终端追踪实验/packets/"+"five-apples-exp-3-pure.pcap");
 //		track.process("/Users/longlong/Documents/研究生工作/终端追踪实验/packets/"+"iphone7p-connect-to-wifi-pure-pr-2.pcap");
 //		track.process("/Users/longlong/Documents/研究生工作/终端追踪实验/"+"2018-12-14-a207.pcap");
 //		track.process("/Users/longlong/Documents/研究生工作/终端追踪实验/"+"2018-12-14-a207-only-randomMAC.pcap");
